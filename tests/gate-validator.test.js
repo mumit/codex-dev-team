@@ -37,6 +37,15 @@ function gate(overrides = {}) {
   };
 }
 
+function requirementsGate(overrides = {}) {
+  return gate({
+    acceptance_criteria_count: 2,
+    out_of_scope_items: [],
+    required_sections_complete: true,
+    ...overrides,
+  });
+}
+
 describe("gate-validator", () => {
   let tmp;
   let gates;
@@ -57,7 +66,7 @@ describe("gate-validator", () => {
 
   it("passes a valid PASS gate", () => {
     fs.mkdirSync(gates, { recursive: true });
-    fs.writeFileSync(path.join(gates, "stage-01.json"), JSON.stringify(gate()));
+    fs.writeFileSync(path.join(gates, "stage-01.json"), JSON.stringify(requirementsGate()));
 
     const result = run(tmp);
     assert.equal(result.status, 0);
@@ -99,6 +108,15 @@ describe("gate-validator", () => {
     const result = run(tmp);
     assert.equal(result.status, 1);
     assert.match(result.stderr, /retry gates require/);
+  });
+
+  it("applies stage-specific schema validation", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-01.json"), JSON.stringify(gate()));
+
+    const result = run(tmp);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /stage-01\.schema\.json: missing required field: acceptance_criteria_count/);
   });
 
   it("sanitizes and truncates log output", () => {

@@ -30,6 +30,20 @@ Before editing, present:
 
 Proceed once the user approves or the request clearly asks you to execute.
 
+Plan template:
+
+```text
+Context:
+Approach:
+Files:
+Tests:
+Docs:
+Compatibility:
+Verification:
+Rollback:
+Open questions:
+```
+
 ## Step 3: Execute
 
 Make focused edits. Keep unrelated files untouched. Prefer existing patterns.
@@ -50,3 +64,11 @@ Report failures honestly.
 
 When the user asks to commit, stage only files changed for this item and use
 a Conventional Commit message.
+
+Commit message template:
+
+```text
+<type>(<scope>): <short summary>
+
+<why this changed and what it protects>
+```

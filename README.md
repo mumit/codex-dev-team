@@ -22,6 +22,7 @@ local/cloud execution profiles.
 ```bash
 npm test
 npm run lint
+npm run doctor
 bash bootstrap.sh /path/to/target-project
 ```
 
@@ -55,5 +56,16 @@ pipeline/
 
 ## Status
 
-`v0.1.0` is the initial scaffold. It is intentionally small but already
-executable: bootstrap, gate validation, status, roadmap, skills, and tests.
+`v0.2.0` adds stage-specific gate schemas, the `codex-team` CLI, CI, richer
+skills, and dogfood install coverage. It is still local-only by design until
+you decide to publish a remote.
+
+## CLI
+
+```bash
+npm run doctor
+npm run validate
+npm run status
+npm run roadmap
+npm run reset
+```

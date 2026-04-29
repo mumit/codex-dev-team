@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-07.schema.json",
+  "title": "Stage 07 QA Gate",
+  "type": "object",
+  "required": [
+    "all_acceptance_criteria_met",
+    "tests_total",
+    "tests_passed",
+    "tests_failed",
+    "failing_tests",
+    "criterion_to_test_mapping_is_one_to_one"
+  ],
+  "properties": {
+    "all_acceptance_criteria_met": { "type": "boolean" },
+    "tests_total": { "type": "integer", "minimum": 0 },
+    "tests_passed": { "type": "integer", "minimum": 0 },
+    "tests_failed": { "type": "integer", "minimum": 0 },
+    "failing_tests": { "type": "array" },
+    "criterion_to_test_mapping_is_one_to_one": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

@@ -20,3 +20,19 @@ List findings by severity with file and line references. If no issues are
 found, say so clearly and name residual risk.
 
 Do not make source edits during review unless the user asks you to fix issues.
+
+Finding format:
+
+```text
+[P1] Short finding title
+File: path:line
+Why it matters:
+Suggested fix:
+```
+
+Priority guide:
+
+- `P0`: blocks merge or can corrupt/delete data
+- `P1`: likely production bug, security issue, or broken workflow
+- `P2`: maintainability or edge-case issue worth fixing before merge
+- `P3`: polish or future improvement

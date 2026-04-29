@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-08.schema.json",
+  "title": "Stage 08 Sign-off and Deploy Gate",
+  "type": "object",
+  "required": [
+    "pm_signoff",
+    "deploy_requested",
+    "runbook_referenced"
+  ],
+  "properties": {
+    "pm_signoff": { "type": "boolean" },
+    "deploy_requested": { "type": "boolean" },
+    "runbook_referenced": { "type": "boolean" },
+    "adapter": { "type": "string" },
+    "smoke_test_passed": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

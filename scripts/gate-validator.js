@@ -5,6 +5,7 @@ const path = require("node:path");
 const REPO_ROOT = process.cwd();
 const GATES_DIR = path.join(REPO_ROOT, "pipeline", "gates");
 const SCHEMA_PATH = path.join(__dirname, "..", "schemas", "gate.schema.json");
+const SCHEMA_DIR = path.join(__dirname, "..", "schemas");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -60,11 +61,11 @@ function latestGateFile() {
   return files[0] || null;
 }
 
-function validateAgainstSchema(gate, schema) {
+function validateAgainstSchema(gate, schema, label = "gate") {
   const errors = [];
 
   for (const field of schema.required || []) {
-    if (!(field in gate)) errors.push(`missing required field: ${field}`);
+    if (!(field in gate)) errors.push(`${label}: missing required field: ${field}`);
   }
 
   for (const [field, spec] of Object.entries(schema.properties || {})) {
@@ -72,23 +73,35 @@ function validateAgainstSchema(gate, schema) {
     const value = gate[field];
 
     if (spec.type === "string" && typeof value !== "string") {
-      errors.push(`${field} must be a string`);
+      errors.push(`${label}: ${field} must be a string`);
     }
-    if (spec.type === "number" && typeof value !== "number") {
-      errors.push(`${field} must be a number`);
+    if ((spec.type === "number" || spec.type === "integer") && typeof value !== "number") {
+      errors.push(`${label}: ${field} must be a ${spec.type}`);
+    }
+    if (spec.type === "integer" && typeof value === "number" && !Number.isInteger(value)) {
+      errors.push(`${label}: ${field} must be an integer`);
+    }
+    if (spec.type === "boolean" && typeof value !== "boolean") {
+      errors.push(`${label}: ${field} must be a boolean`);
+    }
+    if (spec.type === "object" && (typeof value !== "object" || value === null || Array.isArray(value))) {
+      errors.push(`${label}: ${field} must be an object`);
     }
     if (spec.type === "array" && !Array.isArray(value)) {
-      errors.push(`${field} must be an array`);
+      errors.push(`${label}: ${field} must be an array`);
     }
     if (spec.enum && !spec.enum.includes(value)) {
-      errors.push(`${field} must be one of: ${spec.enum.join(", ")}`);
+      errors.push(`${label}: ${field} must be one of: ${spec.enum.join(", ")}`);
     }
     if (spec.minLength && typeof value === "string" && value.length < spec.minLength) {
-      errors.push(`${field} must not be empty`);
+      errors.push(`${label}: ${field} must not be empty`);
+    }
+    if (typeof spec.minimum === "number" && typeof value === "number" && value < spec.minimum) {
+      errors.push(`${label}: ${field} must be >= ${spec.minimum}`);
     }
     if (spec.pattern && typeof value === "string") {
       const re = new RegExp(spec.pattern);
-      if (!re.test(value)) errors.push(`${field} does not match ${spec.pattern}`);
+      if (!re.test(value)) errors.push(`${label}: ${field} does not match ${spec.pattern}`);
     }
   }
 
@@ -97,6 +110,26 @@ function validateAgainstSchema(gate, schema) {
         gate.this_attempt_differs_by.trim() === "") {
       errors.push("retry gates require non-empty this_attempt_differs_by");
     }
+  }
+
+  return errors;
+}
+
+function stageSchemaPath(stage) {
+  const match = typeof stage === "string" ? stage.match(/^(stage-\d{2})/) : null;
+  if (!match) return null;
+  const candidate = path.join(SCHEMA_DIR, `${match[1]}.schema.json`);
+  return fs.existsSync(candidate) ? candidate : null;
+}
+
+function validateGate(gate) {
+  const baseSchema = readJson(SCHEMA_PATH);
+  const errors = validateAgainstSchema(gate, baseSchema, "base");
+  const stagePath = stageSchemaPath(gate.stage);
+
+  if (stagePath) {
+    const stageSchema = readJson(stagePath);
+    errors.push(...validateAgainstSchema(gate, stageSchema, path.basename(stagePath)));
   }
 
   return errors;
@@ -142,8 +175,7 @@ function main() {
     return 1;
   }
 
-  const schema = readJson(SCHEMA_PATH);
-  const errors = validateAgainstSchema(gate, schema);
+  const errors = validateGate(gate);
   if (errors.length > 0) {
     console.error(`[gate-validator] invalid gate ${latest.name}`);
     for (const error of errors) console.error(`  - ${sanitize(error)}`);
@@ -162,4 +194,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { validateAgainstSchema, sanitize, main };
+module.exports = { validateAgainstSchema, validateGate, sanitize, main };

@@ -9,9 +9,12 @@ const DIRS = ["scripts", "tests"];
 function jsFiles(dir) {
   const fullDir = path.join(ROOT, dir);
   if (!fs.existsSync(fullDir)) return [];
-  return fs.readdirSync(fullDir)
-    .filter((name) => name.endsWith(".js"))
-    .map((name) => path.join(fullDir, name));
+  const entries = fs.readdirSync(fullDir, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const full = path.join(fullDir, entry.name);
+    if (entry.isDirectory()) return jsFiles(path.join(dir, entry.name));
+    return entry.name.endsWith(".js") ? [full] : [];
+  });
 }
 
 let failed = false;

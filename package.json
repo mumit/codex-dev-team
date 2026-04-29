@@ -1,6 +1,6 @@
 {
   "name": "codex-dev-team",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "A Codex-native software development team framework with gates, skills, audits, and review workflows",
   "scripts": {
@@ -8,7 +8,10 @@
     "test:coverage": "node --experimental-test-coverage --test tests/*.test.js",
     "lint": "node scripts/lint-syntax.js",
     "gate:check": "node scripts/gate-validator.js",
-    "status": "node scripts/status.js",
-    "roadmap": "node scripts/roadmap.js"
+    "status": "node scripts/codex-team.js status",
+    "roadmap": "node scripts/codex-team.js roadmap",
+    "validate": "node scripts/codex-team.js validate",
+    "doctor": "node scripts/codex-team.js doctor",
+    "reset": "node scripts/codex-team.js reset"
   }
 }

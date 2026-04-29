@@ -34,6 +34,16 @@ describe("framework contracts", () => {
     }
   });
 
+  it("stage schemas are present for high-value stages", () => {
+    for (const stage of ["stage-01", "stage-02", "stage-05", "stage-07", "stage-08", "stage-09"]) {
+      const fullPath = path.join(ROOT, "schemas", `${stage}.schema.json`);
+      assert.ok(fs.existsSync(fullPath), `${stage} schema should exist`);
+      const schema = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+      assert.equal(schema.type, "object");
+      assert.ok(Array.isArray(schema.required));
+    }
+  });
+
   it("core skills exist and have frontmatter", () => {
     for (const name of ["pipeline", "implement", "pre-pr-review", "audit", "quick", "hotfix"]) {
       const skill = read(`.codex/skills/${name}/SKILL.md`);

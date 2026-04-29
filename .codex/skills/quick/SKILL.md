@@ -12,3 +12,7 @@ Use for small changes that touch one area and have low architectural risk.
 3. Run targeted tests and lint.
 4. Write a gate with `track: quick`.
 5. Summarize PR readiness.
+
+Use a full pipeline instead if the change touches more than one ownership
+area, changes architecture, introduces new dependencies, or needs a security
+decision.

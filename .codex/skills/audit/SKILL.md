@@ -29,3 +29,16 @@ Write:
 - `docs/audit/status.json`
 
 Use concrete evidence and exact verification commands.
+
+## Roadmap Shape
+
+`docs/audit/10-roadmap.md` should group work into:
+
+- immediate fixes
+- targeted improvements
+- strategic investments
+- parked/platform-blocked items
+
+Every item should include impact, effort, risk, verification, and likely file
+areas. Mark completed items with `[DONE]` so `npm run roadmap` can summarize
+progress.

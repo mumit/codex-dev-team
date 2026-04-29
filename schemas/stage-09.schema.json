@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-09.schema.json",
+  "title": "Stage 09 Retrospective Gate",
+  "type": "object",
+  "required": [
+    "severity",
+    "lessons_promoted",
+    "patterns_harvested",
+    "contributions_written"
+  ],
+  "properties": {
+    "severity": { "type": "string", "enum": ["green", "yellow", "red"] },
+    "lessons_promoted": { "type": "array" },
+    "patterns_harvested": { "type": "integer", "minimum": 0 },
+    "contributions_written": { "type": "array" }
+  },
+  "additionalProperties": true
+}

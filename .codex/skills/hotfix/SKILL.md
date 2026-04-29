@@ -14,3 +14,6 @@ Required outputs:
 - regression test or explicit reason none is possible
 - hotfix gate with `track: hotfix`
 - rollback note
+
+Hotfixes still require verification. If the same failure recurs after one
+retry, escalate to the Principal role instead of continuing to patch.

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-02.schema.json",
+  "title": "Stage 02 Design Gate",
+  "type": "object",
+  "required": [
+    "arch_approved",
+    "pm_approved",
+    "adr_count"
+  ],
+  "properties": {
+    "arch_approved": { "type": "boolean" },
+    "pm_approved": { "type": "boolean" },
+    "adr_count": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-01.schema.json",
+  "title": "Stage 01 Requirements Gate",
+  "type": "object",
+  "required": [
+    "acceptance_criteria_count",
+    "out_of_scope_items",
+    "required_sections_complete"
+  ],
+  "properties": {
+    "acceptance_criteria_count": { "type": "integer", "minimum": 0 },
+    "out_of_scope_items": { "type": "array" },
+    "required_sections_complete": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

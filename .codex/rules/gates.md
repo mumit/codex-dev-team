@@ -52,3 +52,12 @@ non-empty string.
 Stage-specific fields are additive. The baseline schema is intentionally
 strict about core status and permissive about role-specific payloads so the
 framework can evolve without breaking older target projects.
+
+Schema-backed stage contracts currently exist for:
+
+- `stage-01` requirements
+- `stage-02` design
+- `stage-05-*` review
+- `stage-07` QA
+- `stage-08` sign-off/deploy
+- `stage-09` retrospective
