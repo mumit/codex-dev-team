@@ -57,6 +57,8 @@ describe("codex-team CLI", () => {
 
     assert.equal(result.status, 0);
     assert.match(result.stdout, /Codex Dev Team Status/);
+    assert.match(result.stdout, /Readiness: in-progress/);
+    assert.match(result.stdout, /Gates: 1/);
     assert.match(result.stdout, /stage-01\.json/);
     assert.match(result.stdout, /Artifacts/);
     assert.match(result.stdout, /present pipeline\/brief\.md/);

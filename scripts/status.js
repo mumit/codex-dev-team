@@ -34,10 +34,21 @@ function gates() {
     });
 }
 
+function readiness(rows) {
+  if (rows.length === 0) return "not-started";
+  if (rows.some(({ gate }) => gate.status === "INVALID")) return "invalid";
+  if (rows.some(({ gate }) => gate.status === "ESCALATE")) return "blocked";
+  if (rows.some(({ gate }) => gate.status === "FAIL")) return "in-progress";
+  if (rows.every(({ gate }) => gate.status === "PASS")) return "ready";
+  return "unknown";
+}
+
 function main() {
   const rows = gates();
   console.log("Codex Dev Team Status");
   console.log("=====================");
+  console.log(`Readiness: ${readiness(rows)}`);
+  console.log(`Gates: ${rows.length}`);
 
   if (rows.length === 0) {
     console.log("No gate files found.");
@@ -75,4 +86,8 @@ function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { gates, readiness };
