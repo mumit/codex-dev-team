@@ -35,6 +35,9 @@ describe("codex-team CLI", () => {
     assert.equal(result.status, 0);
     assert.match(result.stdout, /PASS AGENTS\.md/);
     assert.match(result.stdout, /PASS scripts\/gate-validator\.js/);
+    assert.match(result.stdout, /PASS scripts\/summary\.js/);
+    assert.match(result.stdout, /PASS schemas\/stage-09\.schema\.json/);
+    assert.match(result.stdout, /PASS templates\/retrospective-template\.md/);
   });
 
   it("validate runs syntax lint and gate validation", () => {

@@ -382,9 +382,28 @@ function doctor() {
     [".codex/skills/pipeline/SKILL.md", exists(".codex/skills/pipeline/SKILL.md")],
     ["schemas/gate.schema.json", exists("schemas/gate.schema.json")],
     ["scripts/gate-validator.js", exists("scripts/gate-validator.js")],
+    ["scripts/summary.js", exists("scripts/summary.js")],
     ["pipeline/context.md", exists("pipeline/context.md")],
     ["pipeline/lessons-learned.md", exists("pipeline/lessons-learned.md")],
   ];
+
+  for (const stage of ["01", "02", "03", "04", "05", "06", "07", "08", "09"]) {
+    checks.push([`schemas/stage-${stage}.schema.json`, exists(`schemas/stage-${stage}.schema.json`)]);
+  }
+
+  for (const template of [
+    "brief-template.md",
+    "design-spec-template.md",
+    "clarification-template.md",
+    "build-template.md",
+    "pre-review-template.md",
+    "review-template.md",
+    "test-report-template.md",
+    "runbook-template.md",
+    "retrospective-template.md",
+  ]) {
+    checks.push([`templates/${template}`, exists(`templates/${template}`)]);
+  }
 
   let failed = false;
   for (const [name, ok] of checks) {
