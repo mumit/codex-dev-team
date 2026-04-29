@@ -51,6 +51,14 @@ describe("bootstrap", () => {
     assert.ok(fs.existsSync(path.join(target, "src", "tests")));
   });
 
+  it("creates gitignore entries for runtime artifacts", () => {
+    run();
+    const gitignore = fs.readFileSync(path.join(target, ".gitignore"), "utf8");
+
+    assert.match(gitignore, /pipeline\/gates\//);
+    assert.match(gitignore, /\.codex\/config\.local\.yml/);
+  });
+
   it("stamps framework version", () => {
     run();
     const source = fs.readFileSync(path.join(ROOT, "VERSION"), "utf8");

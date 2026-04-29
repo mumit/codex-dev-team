@@ -24,7 +24,7 @@ function copyFileIfMissing(src, dest) {
 
 function appendGitignore(target) {
   const gitignore = path.join(target, ".gitignore");
-  if (!fs.existsSync(gitignore)) return;
+  if (!fs.existsSync(gitignore)) fs.writeFileSync(gitignore, "");
   const content = fs.readFileSync(gitignore, "utf8");
   if (content.includes("pipeline/gates/")) return;
   fs.appendFileSync(gitignore, `
