@@ -15,6 +15,8 @@
     "reset": "node scripts/codex-team.js reset",
     "review:derive": "node scripts/approval-derivation.js",
     "security:check": "node scripts/security-heuristic.js",
-    "runbook:check": "node scripts/runbook-check.js"
+    "runbook:check": "node scripts/runbook-check.js",
+    "pipeline:new": "node scripts/codex-team.js pipeline:new",
+    "stage": "node scripts/codex-team.js stage"
   }
 }

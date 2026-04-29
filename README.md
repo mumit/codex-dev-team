@@ -70,6 +70,10 @@ npm run validate
 npm run status
 npm run roadmap
 npm run reset
+npm run pipeline:new -- "Add authentication"
+npm run stage -- requirements
+npm run stage -- design
+npm run stage -- qa
 npm run review:derive
 npm run security:check -- src/backend/auth/session.js
 npm run runbook:check

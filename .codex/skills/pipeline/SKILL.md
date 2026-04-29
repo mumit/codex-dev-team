@@ -16,6 +16,12 @@ Use this skill to run the structured Codex Dev Team pipeline.
 5. Determine the track: `full`, `quick`, `nano`, `config-only`,
    `dep-update`, or `hotfix`.
 
+Initialize the workspace when starting a new run:
+
+```bash
+npm run pipeline:new -- "<feature name>"
+```
+
 ## Execution
 
 For each stage, create a self-contained Codex task prompt:
@@ -56,6 +62,17 @@ Write gates under `pipeline/gates/` and run:
 
 ```bash
 npm run gate:check
+```
+
+To scaffold common stage artifacts:
+
+```bash
+npm run stage -- requirements
+npm run stage -- design
+npm run stage -- review
+npm run stage -- qa
+npm run stage -- deploy
+npm run stage -- retrospective
 ```
 
 ## Human Checkpoints
