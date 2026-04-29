@@ -56,6 +56,7 @@ function main() {
   copyDir(path.join(SOURCE, ".codex"), path.join(TARGET, ".codex"));
   copyDir(path.join(SOURCE, "scripts"), path.join(TARGET, "scripts"));
   copyDir(path.join(SOURCE, "schemas"), path.join(TARGET, "schemas"));
+  copyDir(path.join(SOURCE, "templates"), path.join(TARGET, "templates"));
 
   copyFileIfMissing(path.join(SOURCE, "AGENTS.md"), path.join(TARGET, "AGENTS.md"));
   fs.mkdirSync(path.join(TARGET, "pipeline"), { recursive: true });

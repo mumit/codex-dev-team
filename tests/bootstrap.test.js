@@ -32,6 +32,7 @@ describe("bootstrap", () => {
     assert.ok(fs.existsSync(path.join(target, ".codex", "rules")));
     assert.ok(fs.existsSync(path.join(target, "scripts", "gate-validator.js")));
     assert.ok(fs.existsSync(path.join(target, "schemas", "gate.schema.json")));
+    assert.ok(fs.existsSync(path.join(target, "templates", "runbook-template.md")));
   });
 
   it("preserves an existing AGENTS.md", () => {

@@ -68,7 +68,7 @@ function validate() {
 }
 
 function usage() {
-  console.log("Usage: codex-team <status|roadmap|validate|doctor|reset>");
+  console.log("Usage: codex-team <status|roadmap|validate|doctor|reset|review|security|runbook>");
   return 1;
 }
 
@@ -79,6 +79,9 @@ function main() {
   if (command === "validate") return validate();
   if (command === "doctor") return doctor();
   if (command === "reset") return reset();
+  if (command === "review") return runNodeScript("approval-derivation.js");
+  if (command === "security") return runNodeScript("security-heuristic.js", process.argv.slice(3));
+  if (command === "runbook") return runNodeScript("runbook-check.js");
   return usage();
 }
 

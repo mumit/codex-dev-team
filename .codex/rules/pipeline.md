@@ -26,6 +26,13 @@ locally, in a Codex app worktree, or as delegated cloud tasks.
 8. **Sign-off and Deploy** - PM sign-off, then deployment when requested.
 9. **Retrospective** - lessons are added to `pipeline/lessons-learned.md`.
 
+## Helper Commands
+
+- `npm run review:derive` derives Stage 5 approval gates from review files.
+- `npm run security:check -- <changed files>` decides whether security review is required.
+- `npm run runbook:check` verifies `pipeline/runbook.md` before deploy.
+- `npm run validate` runs syntax checks and latest-gate validation.
+
 ## Codex Execution Model
 
 For each substantial stage, write a self-contained task prompt:

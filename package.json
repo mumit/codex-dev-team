@@ -12,6 +12,9 @@
     "roadmap": "node scripts/codex-team.js roadmap",
     "validate": "node scripts/codex-team.js validate",
     "doctor": "node scripts/codex-team.js doctor",
-    "reset": "node scripts/codex-team.js reset"
+    "reset": "node scripts/codex-team.js reset",
+    "review:derive": "node scripts/approval-derivation.js",
+    "security:check": "node scripts/security-heuristic.js",
+    "runbook:check": "node scripts/runbook-check.js"
   }
 }

@@ -51,4 +51,21 @@ describe("codex-team CLI", () => {
     assert.deepEqual(fs.readdirSync(gates), []);
     assert.ok(fs.readdirSync(path.join(target, "pipeline", "archive")).length > 0);
   });
+
+  it("runbook command checks deploy runbooks", () => {
+    fs.writeFileSync(path.join(target, "pipeline", "runbook.md"), [
+      "# Runbook",
+      "",
+      "## Rollback",
+      "Revert.",
+      "",
+      "## Health signals",
+      "Smoke.",
+      "",
+    ].join("\n"));
+
+    const result = run("runbook");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Runbook OK/);
+  });
 });

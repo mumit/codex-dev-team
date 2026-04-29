@@ -12,6 +12,8 @@ local/cloud execution profiles.
 - A structured 9-stage delivery pipeline
 - Codex skills for pipeline, implementation, review, and audit workflows
 - Deterministic JSON gates validated by `scripts/gate-validator.js`
+- Stage 5 approval derivation from review files
+- Security-trigger and runbook helper checks
 - Bootstrap installation into target projects
 - Role definitions for PM, Principal, Backend, Frontend, Platform, QA, and Security
 - CI-ready tests with no runtime dependencies
@@ -68,4 +70,7 @@ npm run validate
 npm run status
 npm run roadmap
 npm run reset
+npm run review:derive
+npm run security:check -- src/backend/auth/session.js
+npm run runbook:check
 ```
