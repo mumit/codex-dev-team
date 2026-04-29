@@ -157,6 +157,25 @@ describe("codex-team CLI", () => {
     assert.equal(status.scope, "whole project");
   });
 
+  it("roadmap can emit JSON for automation", () => {
+    run("audit", ["src/backend"]);
+    fs.appendFileSync(path.join(target, "docs", "audit", "10-roadmap.md"), [
+      "| 1 | [DONE] Add pipeline status | High | S | Low | npm run status | scripts |",
+      "| 2 | Add retry routing | High | M | Medium | npm test | pipeline |",
+      "",
+    ].join("\n"));
+
+    const result = run("roadmap", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.exists, true);
+    assert.equal(payload.done, 1);
+    assert.equal(payload.remaining, 1);
+    assert.equal(payload.next[0].id, 2);
+    assert.equal(payload.next[0].item, "Add retry routing");
+  });
+
   it("pipeline:new prepares workspace and records feature name", () => {
     const result = run("pipeline:new", ["Add search"]);
 

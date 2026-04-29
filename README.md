@@ -79,6 +79,7 @@ npm run status
 npm run status -- --json
 npm run summary
 npm run roadmap
+npm run roadmap -- --json
 npm run audit -- "src/backend"
 npm run audit:quick -- "src/frontend"
 npm run health-check
