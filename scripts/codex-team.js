@@ -154,6 +154,7 @@ function newPipeline(name) {
   fs.mkdirSync(path.join(ROOT, "pipeline", "adr"), { recursive: true });
   fs.mkdirSync(path.join(ROOT, "pipeline", "code-review"), { recursive: true });
   writeIfMissing("pipeline/context.md", "# Project Context\n\n## Fix Log\n");
+  writeIfMissing("pipeline/lessons-learned.md", "# Lessons Learned\n\n---\n");
   if (name) {
     fs.appendFileSync(
       path.join(ROOT, "pipeline", "context.md"),
@@ -196,6 +197,7 @@ function doctor() {
     ["schemas/gate.schema.json", exists("schemas/gate.schema.json")],
     ["scripts/gate-validator.js", exists("scripts/gate-validator.js")],
     ["pipeline/context.md", exists("pipeline/context.md")],
+    ["pipeline/lessons-learned.md", exists("pipeline/lessons-learned.md")],
   ];
 
   let failed = false;
@@ -214,7 +216,7 @@ function validate() {
 }
 
 function usage() {
-  console.log("Usage: codex-team <status|roadmap|validate|doctor|reset|review|security|runbook|pipeline:new|stage>");
+  console.log("Usage: codex-team <status|roadmap|validate|doctor|reset|review|security|runbook|pipeline:new|stage|lessons>");
   return 1;
 }
 
@@ -230,6 +232,7 @@ function main() {
   if (command === "runbook") return runNodeScript("runbook-check.js");
   if (command === "pipeline:new") return newPipeline(process.argv.slice(3).join(" "));
   if (command === "stage") return scaffoldStage(process.argv[3]);
+  if (command === "lessons") return runNodeScript("lessons.js", process.argv.slice(3));
   return usage();
 }
 

@@ -44,12 +44,15 @@ describe("codex-team CLI", () => {
 
   it("reset archives context and recreates runtime folders", () => {
     const gates = path.join(target, "pipeline", "gates");
+    const lessons = path.join(target, "pipeline", "lessons-learned.md");
     fs.writeFileSync(path.join(gates, "stage-01.json"), "{}");
+    fs.appendFileSync(lessons, "\n### L999 - Keep me\n");
 
     const result = run("reset");
     assert.equal(result.status, 0);
     assert.deepEqual(fs.readdirSync(gates), []);
     assert.ok(fs.readdirSync(path.join(target, "pipeline", "archive")).length > 0);
+    assert.match(fs.readFileSync(lessons, "utf8"), /L999/);
   });
 
   it("runbook command checks deploy runbooks", () => {
@@ -125,5 +128,26 @@ describe("codex-team CLI", () => {
 
     assert.equal(result.status, 1);
     assert.match(result.stderr, /Unknown stage/);
+  });
+
+  it("lessons command promotes retrospective lesson lines", () => {
+    fs.writeFileSync(path.join(target, "pipeline", "retrospective.md"), [
+      "# Retrospective",
+      "",
+      "LESSON: Always map acceptance criteria to tests before sign-off.",
+      "",
+    ].join("\n"));
+
+    const result = spawnSync(process.execPath, [CLI, "lessons", "promote"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Promoted 1 lesson/);
+    assert.match(
+      fs.readFileSync(path.join(target, "pipeline", "lessons-learned.md"), "utf8"),
+      /Always map acceptance criteria/,
+    );
   });
 });

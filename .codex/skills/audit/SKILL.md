@@ -30,6 +30,9 @@ Write:
 
 Use concrete evidence and exact verification commands.
 
+Read `pipeline/lessons-learned.md` when present so recurring issues from prior
+runs influence the backlog and roadmap.
+
 ## Roadmap Shape
 
 `docs/audit/10-roadmap.md` should group work into:

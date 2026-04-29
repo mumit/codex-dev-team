@@ -13,7 +13,8 @@ Use this skill to run the structured Codex Dev Team pipeline.
 2. Read `.codex/rules/pipeline.md`.
 3. Read `.codex/rules/gates.md`.
 4. Read `pipeline/context.md`.
-5. Determine the track: `full`, `quick`, `nano`, `config-only`,
+5. Read `pipeline/lessons-learned.md` if present and apply relevant lessons.
+6. Determine the track: `full`, `quick`, `nano`, `config-only`,
    `dep-update`, or `hotfix`.
 
 Initialize the workspace when starting a new run:
@@ -89,6 +90,13 @@ Run retrospective, update `pipeline/context.md`, and summarize:
 - tests run
 - open risks
 - PR readiness
+
+If the retrospective contains durable learning, write lines beginning with
+`LESSON:` in `pipeline/retrospective.md`, then run:
+
+```bash
+npm run lessons -- promote
+```
 
 ## Stage Gates
 

@@ -52,4 +52,11 @@ describe("framework contracts", () => {
       assert.match(skill, /description:/);
     }
   });
+
+  it("planning skills reference lessons learned", () => {
+    for (const skill of ["pipeline", "implement", "audit"]) {
+      const body = read(`.codex/skills/${skill}/SKILL.md`);
+      assert.match(body, /lessons-learned\.md/, `${skill} should read lessons`);
+    }
+  });
 });

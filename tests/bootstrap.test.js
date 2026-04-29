@@ -45,6 +45,7 @@ describe("bootstrap", () => {
   it("creates pipeline and src structure", () => {
     run();
     assert.ok(fs.existsSync(path.join(target, "pipeline", "context.md")));
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "lessons-learned.md")));
     assert.ok(fs.existsSync(path.join(target, "pipeline", "gates")));
     assert.ok(fs.existsSync(path.join(target, "src", "backend")));
     assert.ok(fs.existsSync(path.join(target, "src", "tests")));

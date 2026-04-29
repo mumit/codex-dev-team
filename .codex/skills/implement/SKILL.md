@@ -14,7 +14,8 @@ Read:
 1. `AGENTS.md`
 2. `docs/audit/10-roadmap.md` if present
 3. `pipeline/context.md` if present
-4. relevant source and tests
+4. `pipeline/lessons-learned.md` if present
+5. relevant source and tests
 
 ## Step 2: Plan
 

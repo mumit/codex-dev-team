@@ -24,6 +24,7 @@ below.
 
 - Read `.codex/rules/pipeline.md` before running a pipeline stage.
 - Read `.codex/rules/gates.md` before writing a gate.
+- Read `pipeline/lessons-learned.md` before substantial planning.
 - Use JSON gates as the source of truth; do not infer stage status from prose.
 - Keep `pipeline/context.md` append-only during a run.
 - Keep changes scoped to the role's ownership unless the user approves a wider change.

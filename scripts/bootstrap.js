@@ -61,6 +61,7 @@ function main() {
   copyFileIfMissing(path.join(SOURCE, "AGENTS.md"), path.join(TARGET, "AGENTS.md"));
   fs.mkdirSync(path.join(TARGET, "pipeline"), { recursive: true });
   copyFileIfMissing(path.join(SOURCE, "pipeline", "context.md"), path.join(TARGET, "pipeline", "context.md"));
+  copyFileIfMissing(path.join(SOURCE, "pipeline", "lessons-learned.md"), path.join(TARGET, "pipeline", "lessons-learned.md"));
 
   fs.mkdirSync(path.join(TARGET, "pipeline", "gates"), { recursive: true });
   fs.mkdirSync(path.join(TARGET, "pipeline", "adr"), { recursive: true });
