@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const { STAGES, TRACKS, orderedStageNames } = require("../scripts/codex-team");
+const { STAGES, TRACKS, draftGateObject, orderedStageNames } = require("../scripts/codex-team");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -83,6 +83,24 @@ describe("framework contracts", () => {
   it("configured tracks match gate schema enum", () => {
     const schema = JSON.parse(read("schemas/gate.schema.json"));
     assert.deepEqual(TRACKS, schema.properties.track.enum);
+  });
+
+  it("stage draft gates include required base and stage fields", () => {
+    const baseSchema = JSON.parse(read("schemas/gate.schema.json"));
+
+    for (const name of orderedStageNames()) {
+      const config = STAGES[name];
+      const gate = draftGateObject(config, "2026-01-01T00:00:00.000Z");
+      const stageSchema = JSON.parse(read(`schemas/${config.stage.startsWith("stage-06") ? "stage-06" : config.stage}.schema.json`));
+
+      for (const field of baseSchema.required) {
+        assert.ok(field in gate, `${name} draft gate should include base field ${field}`);
+      }
+
+      for (const field of stageSchema.required) {
+        assert.ok(field in gate, `${name} draft gate should include stage field ${field}`);
+      }
+    }
   });
 
   it("core skills exist and have frontmatter", () => {
