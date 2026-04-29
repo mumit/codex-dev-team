@@ -29,6 +29,7 @@ describe("release helper", () => {
       version: "1.2.3",
       scripts: {
         test: "node --test",
+        help: "node scripts/codex-team.js help",
         lint: "node scripts/lint-syntax.js",
         validate: "node scripts/codex-team.js validate",
         doctor: "node scripts/codex-team.js doctor",

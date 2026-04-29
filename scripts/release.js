@@ -27,6 +27,7 @@ function releaseChecks() {
 
   for (const script of [
     "test",
+    "help",
     "lint",
     "validate",
     "doctor",
