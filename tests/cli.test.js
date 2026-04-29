@@ -34,8 +34,11 @@ describe("codex-team CLI", () => {
     const result = run("doctor");
     assert.equal(result.status, 0);
     assert.match(result.stdout, /PASS AGENTS\.md/);
+    assert.match(result.stdout, /PASS scripts\/codex-team\.js/);
     assert.match(result.stdout, /PASS scripts\/gate-validator\.js/);
     assert.match(result.stdout, /PASS scripts\/consistency\.js/);
+    assert.match(result.stdout, /PASS scripts\/status\.js/);
+    assert.match(result.stdout, /PASS scripts\/roadmap\.js/);
     assert.match(result.stdout, /PASS scripts\/summary\.js/);
     assert.match(result.stdout, /PASS scripts\/release\.js/);
     assert.match(result.stdout, /PASS scripts\/pr-pack\.js/);
