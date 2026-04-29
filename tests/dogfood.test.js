@@ -196,7 +196,9 @@ describe("dogfood install", () => {
       encoding: "utf8",
     });
     assert.equal(summary.status, 0);
-    assert.match(fs.readFileSync(path.join(target, "pipeline", "summary.md"), "utf8"), /stage-06-backend\.json/);
+    const summaryText = fs.readFileSync(path.join(target, "pipeline", "summary.md"), "utf8");
+    assert.match(summaryText, /Readiness: ready/);
+    assert.match(summaryText, /stage-06-backend\.json/);
 
     const lessons = spawnSync(process.execPath, [cli, "lessons", "promote"], {
       cwd: target,

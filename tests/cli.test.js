@@ -74,6 +74,7 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /wrote pipeline\/summary\.md/);
     const summary = fs.readFileSync(path.join(target, "pipeline", "summary.md"), "utf8");
     assert.match(summary, /# Pipeline Summary/);
+    assert.match(summary, /Readiness: in-progress/);
     assert.match(summary, /stage-01\.json/);
     assert.match(summary, /pipeline\/brief\.md \| present/);
     assert.match(summary, /pipeline\/design-spec\.md \| missing/);

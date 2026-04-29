@@ -25,12 +25,22 @@ function artifactStatus(relativePath) {
   return fs.existsSync(path.join(ROOT, relativePath)) ? "present" : "missing";
 }
 
+function readiness(gates) {
+  if (gates.length === 0) return "not-started";
+  if (gates.some(({ gate }) => gate.status === "INVALID")) return "invalid";
+  if (gates.some(({ gate }) => gate.status === "ESCALATE")) return "blocked";
+  if (gates.some(({ gate }) => gate.status === "FAIL")) return "in-progress";
+  if (gates.every(({ gate }) => gate.status === "PASS")) return "ready";
+  return "unknown";
+}
+
 function buildSummary() {
   const gates = readGates();
   const lines = [
     "# Pipeline Summary",
     "",
     `Generated: ${new Date().toISOString()}`,
+    `Readiness: ${readiness(gates)}`,
     "",
     "## Gates",
     "",
@@ -83,4 +93,4 @@ if (require.main === module) {
   process.exit(main());
 }
 
-module.exports = { buildSummary };
+module.exports = { buildSummary, readiness };
