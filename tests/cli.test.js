@@ -48,6 +48,14 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /PASS templates\/retrospective-template\.md/);
   });
 
+  it("help prints usage successfully", () => {
+    const result = run("help");
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Usage: codex-team <command>/);
+    assert.match(result.stdout, /status \| next \| roadmap/);
+  });
+
   it("validate runs syntax lint and gate validation", () => {
     const result = run("validate");
     assert.equal(result.status, 0);

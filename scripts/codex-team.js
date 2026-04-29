@@ -599,7 +599,7 @@ function validate() {
   return runNodeScript("consistency.js");
 }
 
-function usage() {
+function usage(exitCode = 1) {
   console.log([
     "Usage: codex-team <command>",
     "",
@@ -621,11 +621,12 @@ function usage() {
     "  prompt <stage> [feature]",
     "  stage <requirements|design|clarification|build|pre-review|peer-review|qa|deploy|retrospective>",
   ].join("\n"));
-  return 1;
+  return exitCode;
 }
 
 function main() {
   const command = process.argv[2];
+  if (command === "help" || command === "--help" || command === "-h") return usage(0);
   if (command === "status") return runNodeScript("status.js", process.argv.slice(3));
   if (command === "next") return printNext(process.argv.slice(3));
   if (command === "summary") return runNodeScript("summary.js");

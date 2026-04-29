@@ -24,6 +24,7 @@ local/cloud execution profiles.
 
 ```bash
 npm test
+npm run help
 npm run lint
 npm run doctor
 bash bootstrap.sh /path/to/target-project
