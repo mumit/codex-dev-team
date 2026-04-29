@@ -7,9 +7,9 @@ const { execFileSync } = require("node:child_process");
 
 const VALIDATOR = path.resolve(__dirname, "..", "scripts", "gate-validator.js");
 
-function run(cwd) {
+function run(cwd, args = []) {
   try {
-    const stdout = execFileSync(process.execPath, [VALIDATOR], {
+    const stdout = execFileSync(process.execPath, [VALIDATOR, ...args], {
       cwd,
       encoding: "utf8",
       stdio: ["pipe", "pipe", "pipe"],
@@ -131,5 +131,35 @@ describe("gate-validator", () => {
     assert.equal(result.status, 2);
     assert.equal(result.stdout.includes("\u001b"), false);
     assert.match(result.stdout, /\[truncated\]/);
+  });
+
+  it("validates every gate when requested", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-01.json"), JSON.stringify({ status: "PASS" }));
+    fs.writeFileSync(path.join(gates, "stage-99.json"), JSON.stringify(gate({
+      stage: "stage-99",
+      status: "PASS",
+    })));
+
+    const latestOnly = run(tmp);
+    assert.equal(latestOnly.status, 0);
+
+    const all = run(tmp, ["--all"]);
+    assert.equal(all.status, 1);
+    assert.match(all.stderr, /invalid gate stage-01\.json/);
+  });
+
+  it("returns 2 when all gates are valid but at least one gate failed", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-01.json"), JSON.stringify(requirementsGate()));
+    fs.writeFileSync(path.join(gates, "stage-99.json"), JSON.stringify(gate({
+      stage: "stage-99",
+      status: "FAIL",
+      blockers: ["manual follow-up needed"],
+    })));
+
+    const result = run(tmp, ["--all"]);
+    assert.equal(result.status, 2);
+    assert.match(result.stdout, /manual follow-up needed/);
   });
 });

@@ -398,7 +398,7 @@ function doctor() {
 function validate() {
   const lint = runNodeScript("lint-syntax.js");
   if (lint !== 0) return lint;
-  return runNodeScript("gate-validator.js");
+  return runNodeScript("gate-validator.js", ["--all"]);
 }
 
 function usage() {

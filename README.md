@@ -67,6 +67,8 @@ you decide to publish a remote.
 
 ```bash
 npm run doctor
+npm run gate:check
+npm run gate:check:all
 npm run validate
 npm run status
 npm run roadmap

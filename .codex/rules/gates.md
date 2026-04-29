@@ -47,6 +47,12 @@ Retry gates include:
 If `retry_number` is 1 or greater, `this_attempt_differs_by` must be a
 non-empty string.
 
+## Validation
+
+- `npm run gate:check` validates the latest gate only.
+- `npm run gate:check:all` validates every gate in `pipeline/gates/`.
+- `npm run validate` runs syntax checks and validates every gate.
+
 ## Stage-Specific Fields
 
 Stage-specific fields are additive. The baseline schema is intentionally

@@ -8,6 +8,7 @@
     "test:coverage": "node --experimental-test-coverage --test tests/*.test.js",
     "lint": "node scripts/lint-syntax.js",
     "gate:check": "node scripts/gate-validator.js",
+    "gate:check:all": "node scripts/gate-validator.js --all",
     "status": "node scripts/codex-team.js status",
     "roadmap": "node scripts/codex-team.js roadmap",
     "audit": "node scripts/codex-team.js audit",

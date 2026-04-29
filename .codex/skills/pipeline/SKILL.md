@@ -81,6 +81,7 @@ Write gates under `pipeline/gates/` and run:
 
 ```bash
 npm run gate:check
+npm run gate:check:all
 ```
 
 To scaffold common stage artifacts:

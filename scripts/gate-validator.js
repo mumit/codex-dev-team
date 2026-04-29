@@ -61,6 +61,18 @@ function latestGateFile() {
   return files[0] || null;
 }
 
+function gateFiles() {
+  if (!fs.existsSync(GATES_DIR)) return [];
+
+  return fs.readdirSync(GATES_DIR)
+    .filter((name) => name.endsWith(".json"))
+    .sort()
+    .map((name) => ({
+      name,
+      full: path.join(GATES_DIR, name),
+    }));
+}
+
 function validateAgainstSchema(gate, schema, label = "gate") {
   const errors = [];
 
@@ -163,26 +175,45 @@ function printGate(gate) {
   return 1;
 }
 
-function main() {
-  const latest = latestGateFile();
-  if (!latest) return 0;
-
+function validateGateFile(file) {
   let gate;
   try {
-    gate = readJson(latest.full);
+    gate = readJson(file.full);
   } catch (err) {
-    console.error(`[gate-validator] invalid JSON in ${latest.name}: ${sanitize(err.message)}`);
+    console.error(`[gate-validator] invalid JSON in ${file.name}: ${sanitize(err.message)}`);
     return 1;
   }
 
   const errors = validateGate(gate);
   if (errors.length > 0) {
-    console.error(`[gate-validator] invalid gate ${latest.name}`);
+    console.error(`[gate-validator] invalid gate ${file.name}`);
     for (const error of errors) console.error(`  - ${sanitize(error)}`);
     return 1;
   }
 
   return printGate(gate);
+}
+
+function validateAllGates() {
+  const files = gateFiles();
+  if (files.length === 0) return 0;
+
+  let worst = 0;
+  for (const file of files) {
+    const status = validateGateFile(file);
+    if (status === 1) worst = 1;
+    else if (worst !== 1 && status === 3) worst = 3;
+    else if (worst === 0 && status === 2) worst = 2;
+  }
+  return worst;
+}
+
+function main() {
+  if (process.argv.includes("--all")) return validateAllGates();
+
+  const latest = latestGateFile();
+  if (!latest) return 0;
+  return validateGateFile(latest);
 }
 
 if (require.main === module) {
@@ -194,4 +225,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { validateAgainstSchema, validateGate, sanitize, main };
+module.exports = { validateAgainstSchema, validateGate, sanitize, main, validateAllGates };
