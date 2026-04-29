@@ -37,6 +37,7 @@ Use these local npm scripts when a user asks for the matching command-style work
 | User intent | Local command |
 |---|---|
 | `/pipeline <feature>` | `npm run pipeline -- "<feature>"` |
+| Full pipeline scaffold | `npm run pipeline:scaffold -- "<feature>"` |
 | `/pipeline-brief <feature>` | `npm run pipeline:brief -- "<feature>"` |
 | `/design <feature>` | `npm run design -- "<feature>"` |
 | `/pipeline-review` | `npm run pipeline:review` |

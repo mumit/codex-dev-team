@@ -75,6 +75,7 @@ npm run audit:quick -- "src/frontend"
 npm run health-check
 npm run reset
 npm run pipeline -- "Add authentication"
+npm run pipeline:scaffold -- "Add authentication"
 npm run pipeline:new -- "Add authentication"
 npm run pipeline:brief -- "Add authentication"
 npm run design -- "Add authentication"

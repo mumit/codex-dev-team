@@ -139,6 +139,38 @@ describe("codex-team CLI", () => {
     assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /Add notifications/);
   });
 
+  it("pipeline:scaffold command prepares all stage artifacts and gates", () => {
+    const result = run("pipeline:scaffold", ["Add exports"]);
+
+    assert.equal(result.status, 0);
+    for (const artifact of [
+      "brief.md",
+      "design-spec.md",
+      "clarification-log.md",
+      "build-plan.md",
+      "pre-review.md",
+      "test-report.md",
+      "runbook.md",
+      "retrospective.md",
+    ]) {
+      assert.ok(fs.existsSync(path.join(target, "pipeline", artifact)), `${artifact} should exist`);
+    }
+    for (const gate of [
+      "stage-01.json",
+      "stage-02.json",
+      "stage-03.json",
+      "stage-04.json",
+      "stage-05.json",
+      "stage-06-backend.json",
+      "stage-07.json",
+      "stage-08.json",
+      "stage-09.json",
+    ]) {
+      assert.ok(fs.existsSync(path.join(target, "pipeline", "gates", gate)), `${gate} should exist`);
+    }
+    assert.match(result.stdout, /Pipeline scaffold complete/);
+  });
+
   it("pipeline-brief command can scaffold requirements by feature name", () => {
     const result = run("pipeline-brief", ["Add reports"]);
 

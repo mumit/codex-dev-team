@@ -297,6 +297,30 @@ function runDesign(feature) {
   return 0;
 }
 
+function scaffoldPipeline(feature) {
+  const status = newPipeline(feature);
+  if (status !== 0) return status;
+
+  for (const stage of [
+    "requirements",
+    "design",
+    "clarification",
+    "build",
+    "pre-review",
+    "peer-review",
+    "qa",
+    "deploy",
+    "retrospective",
+  ]) {
+    const stageStatus = scaffoldStage(stage);
+    if (stageStatus !== 0) return stageStatus;
+  }
+
+  console.log("");
+  console.log("Pipeline scaffold complete. Fill artifacts in order and advance gates with npm run validate.");
+  return 0;
+}
+
 function runPipelineReview() {
   const stageStatus = scaffoldStage("peer-review");
   if (stageStatus !== 0) return stageStatus;
@@ -388,6 +412,7 @@ function usage() {
     "",
     "Pipeline:",
     "  pipeline <feature>",
+    "  pipeline:scaffold <feature>",
     "  pipeline:new <feature>",
     "  pipeline-brief [feature]",
     "  design <feature>",
@@ -414,6 +439,7 @@ function main() {
   if (command === "audit-quick") return runNodeScript("audit.js", ["quick", ...process.argv.slice(3)]);
   if (command === "health-check") return runNodeScript("audit.js", ["health-check", ...process.argv.slice(3)]);
   if (command === "pipeline") return runPipeline(process.argv.slice(3).join(" "));
+  if (command === "pipeline:scaffold") return scaffoldPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline:new") return newPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline-brief") {
     const feature = process.argv.slice(3).join(" ");

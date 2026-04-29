@@ -29,6 +29,12 @@ Use the lower-level initializer only when you need an empty runtime workspace:
 npm run pipeline:new -- "<feature name>"
 ```
 
+To prepare every stage artifact and draft gate up front:
+
+```bash
+npm run pipeline:scaffold -- "<feature name>"
+```
+
 ## Execution
 
 For each stage, create a self-contained Codex task prompt:
