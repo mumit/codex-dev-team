@@ -2,6 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const { STAGES, TRACKS, orderedStageNames } = require("../scripts/codex-team");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -52,6 +53,36 @@ describe("framework contracts", () => {
       assert.equal(schema.type, "object");
       assert.ok(Array.isArray(schema.required));
     }
+  });
+
+  it("stage configuration has matching templates and schemas", () => {
+    assert.deepEqual(orderedStageNames(), [
+      "requirements",
+      "design",
+      "clarification",
+      "build",
+      "pre-review",
+      "peer-review",
+      "qa",
+      "deploy",
+      "retrospective",
+    ]);
+
+    for (const name of orderedStageNames()) {
+      const config = STAGES[name];
+      assert.ok(config, `${name} should have a stage config`);
+      assert.match(config.artifact, /^pipeline\//, `${name} artifact should live under pipeline/`);
+      assert.match(config.template, /-template\.md$/, `${name} should use a template`);
+      assert.ok(fs.existsSync(path.join(ROOT, "templates", config.template)), `${name} template should exist`);
+
+      const schemaStage = config.stage.startsWith("stage-06") ? "stage-06" : config.stage;
+      assert.ok(fs.existsSync(path.join(ROOT, "schemas", `${schemaStage}.schema.json`)), `${name} schema should exist`);
+    }
+  });
+
+  it("configured tracks match gate schema enum", () => {
+    const schema = JSON.parse(read("schemas/gate.schema.json"));
+    assert.deepEqual(TRACKS, schema.properties.track.enum);
   });
 
   it("core skills exist and have frontmatter", () => {

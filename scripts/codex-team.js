@@ -655,4 +655,14 @@ function main() {
   return usage();
 }
 
-process.exit(main());
+if (require.main === module) {
+  process.exit(main());
+}
+
+module.exports = {
+  STAGES,
+  TRACKS,
+  canonicalStageName,
+  orderedStageNames,
+  stageNames,
+};
