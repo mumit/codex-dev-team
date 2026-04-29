@@ -135,4 +135,20 @@ describe("framework contracts", () => {
       assert.match(workflow, new RegExp(command.replaceAll(" ", "\\s+")));
     }
   });
+
+  it("AGENTS command shims document core npm workflows", () => {
+    const agents = read("AGENTS.md");
+    for (const command of [
+      "npm run pipeline",
+      "npm run pipeline:scaffold",
+      "npm run status",
+      "npm run next",
+      "npm run roadmap",
+      "npm run help",
+      "npm run audit",
+      "npm run health-check",
+    ]) {
+      assert.match(agents, new RegExp(command.replaceAll(" ", "\\s+")));
+    }
+  });
 });

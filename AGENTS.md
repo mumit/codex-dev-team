@@ -46,7 +46,9 @@ Use these local npm scripts when a user asks for the matching command-style work
 | Stage task prompt | `npm run prompt -- <stage> "<feature>"` |
 | `/stage <name>` | `npm run stage -- <name>` |
 | `/status` | `npm run status` |
+| `/next` | `npm run next` |
 | `/roadmap` | `npm run roadmap` |
+| Help | `npm run help` |
 | `/audit [scope]` | `npm run audit -- "<scope>"` |
 | `/audit-quick [scope]` | `npm run audit:quick -- "<scope>"` |
 | `/health-check` | `npm run health-check` |
