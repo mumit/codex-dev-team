@@ -77,6 +77,7 @@ npm run design -- "Add authentication"
 npm run pipeline:review
 npm run pipeline:context
 npm run retrospective
+npm run prompt -- requirements "Add authentication"
 npm run stage -- requirements
 npm run stage -- design
 npm run stage -- qa

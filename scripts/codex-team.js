@@ -9,6 +9,10 @@ const TEMPLATE_DIR = path.join(ROOT, "templates");
 const STAGES = {
   requirements: {
     stage: "stage-01",
+    role: "PM",
+    objective: "Turn the feature request into requirements, acceptance criteria, and scope boundaries.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md"],
+    allowedWrites: ["pipeline/brief.md", "pipeline/gates/stage-01.json", "pipeline/context.md"],
     artifact: "pipeline/brief.md",
     template: "brief-template.md",
     gate: {
@@ -20,6 +24,10 @@ const STAGES = {
   },
   design: {
     stage: "stage-02",
+    role: "Principal",
+    objective: "Convert approved requirements into an implementable architecture and explicit decisions.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/brief.md"],
+    allowedWrites: ["pipeline/design-spec.md", "pipeline/adr/", "pipeline/gates/stage-02.json", "pipeline/context.md"],
     artifact: "pipeline/design-spec.md",
     template: "design-spec-template.md",
     gate: {
@@ -31,6 +39,10 @@ const STAGES = {
   },
   review: {
     stage: "stage-05-backend",
+    role: "Reviewer",
+    objective: "Review peer implementation notes, record findings, and derive deterministic approval gates.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/pr-*.md"],
+    allowedWrites: ["pipeline/code-review/by-<role>.md", "pipeline/gates/stage-05-*.json"],
     artifact: "pipeline/code-review/by-backend.md",
     template: "review-template.md",
     gate: {
@@ -45,6 +57,10 @@ const STAGES = {
   },
   qa: {
     stage: "stage-07",
+    role: "QA",
+    objective: "Verify every acceptance criterion with a one-to-one test mapping and report results.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/brief.md", "pipeline/design-spec.md"],
+    allowedWrites: ["src/tests/", "pipeline/test-report.md", "pipeline/gates/stage-07.json", "pipeline/context.md"],
     artifact: "pipeline/test-report.md",
     template: "test-report-template.md",
     gate: {
@@ -59,6 +75,10 @@ const STAGES = {
   },
   deploy: {
     stage: "stage-08",
+    role: "Platform",
+    objective: "Prepare deployment, confirm PM sign-off, and record rollback and health checks.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/test-report.md"],
+    allowedWrites: ["pipeline/runbook.md", "pipeline/deploy-log.md", "pipeline/gates/stage-08.json", "pipeline/context.md"],
     artifact: "pipeline/runbook.md",
     template: "runbook-template.md",
     gate: {
@@ -70,6 +90,10 @@ const STAGES = {
   },
   retrospective: {
     stage: "stage-09",
+    role: "Principal",
+    objective: "Synthesize the run, capture durable lessons, and close the pipeline loop.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/lessons-learned.md"],
+    allowedWrites: ["pipeline/retrospective.md", "pipeline/lessons-learned.md", "pipeline/gates/stage-09.json", "pipeline/context.md"],
     artifact: "pipeline/retrospective.md",
     template: "retrospective-template.md",
     gate: {
@@ -146,6 +170,39 @@ function scaffoldStage(name) {
   const gateCreated = draftGate(config);
   console.log(`${artifactCreated ? "created" : "exists"} ${config.artifact}`);
   console.log(`${gateCreated ? "created" : "exists"} pipeline/gates/${config.stage}.json`);
+  return 0;
+}
+
+function printList(title, items) {
+  console.log(`${title}:`);
+  for (const item of items) console.log(`- ${item}`);
+}
+
+function promptForStage(name, feature) {
+  const config = STAGES[name];
+  if (!config) {
+    console.error(`Unknown stage: ${name}`);
+    console.error(`Known stages: ${Object.keys(STAGES).join(", ")}`);
+    return 1;
+  }
+
+  console.log(`Role: ${config.role}`);
+  console.log(`Stage: ${config.stage} (${name})`);
+  console.log(`Track: ${currentTrack()}`);
+  if (feature) console.log(`Feature: ${feature}`);
+  console.log(`Objective: ${config.objective}`);
+  console.log("");
+  printList("Read first", config.readFirst);
+  console.log("");
+  printList("Allowed writes", config.allowedWrites);
+  console.log("");
+  printList("Expected artifacts", [config.artifact, `pipeline/gates/${config.stage}.json`]);
+  console.log("");
+  console.log("Gate:");
+  console.log(`- Write pipeline/gates/${config.stage}.json with base fields and stage-specific fields.`);
+  console.log("- Set status to PASS only when the deterministic criteria are satisfied.");
+  console.log("");
+  printList("Verification", ["npm run validate", "npm run status"]);
   return 0;
 }
 
@@ -279,6 +336,7 @@ function usage() {
     "  pipeline-review",
     "  pipeline-context",
     "  retrospective",
+    "  prompt <stage> [feature]",
     "  stage <requirements|design|review|qa|deploy|retrospective>",
   ].join("\n"));
   return 1;
@@ -305,6 +363,7 @@ function main() {
   if (command === "pipeline-review") return runPipelineReview();
   if (command === "pipeline-context") return printContext();
   if (command === "retrospective") return runRetrospective();
+  if (command === "prompt") return promptForStage(process.argv[3], process.argv.slice(4).join(" "));
   if (command === "stage") return scaffoldStage(process.argv[3]);
   if (command === "lessons") return runNodeScript("lessons.js", process.argv.slice(3));
   return usage();

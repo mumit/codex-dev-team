@@ -65,6 +65,12 @@ Verification:
 - <commands>
 ```
 
+Generate the standard prompt shape with:
+
+```bash
+npm run prompt -- requirements "<feature name>"
+```
+
 Write gates under `pipeline/gates/` and run:
 
 ```bash

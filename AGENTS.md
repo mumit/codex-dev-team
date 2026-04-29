@@ -42,6 +42,7 @@ Use these local npm scripts when a user asks for the matching command-style work
 | `/pipeline-review` | `npm run pipeline:review` |
 | `/pipeline-context` | `npm run pipeline:context` |
 | `/retrospective` | `npm run retrospective` |
+| Stage task prompt | `npm run prompt -- <stage> "<feature>"` |
 | `/stage <name>` | `npm run stage -- <name>` |
 | `/status` | `npm run status` |
 | `/roadmap` | `npm run roadmap` |

@@ -136,6 +136,26 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /LESSON:/);
   });
 
+  it("prompt command emits a self-contained stage prompt", () => {
+    const result = run("prompt", ["requirements", "Add search"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Role: PM/);
+    assert.match(result.stdout, /Stage: stage-01 \(requirements\)/);
+    assert.match(result.stdout, /Feature: Add search/);
+    assert.match(result.stdout, /Read first:/);
+    assert.match(result.stdout, /Allowed writes:/);
+    assert.match(result.stdout, /pipeline\/gates\/stage-01\.json/);
+    assert.match(result.stdout, /npm run validate/);
+  });
+
+  it("prompt command rejects unknown stages", () => {
+    const result = run("prompt", ["mystery"]);
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Unknown stage/);
+  });
+
   it("stage requirements scaffolds brief and draft gate", () => {
     const result = run("stage", ["requirements"]);
 
