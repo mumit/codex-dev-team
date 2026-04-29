@@ -32,9 +32,13 @@ describe("release helper", () => {
         lint: "node scripts/lint-syntax.js",
         validate: "node scripts/codex-team.js validate",
         doctor: "node scripts/codex-team.js doctor",
+        status: "node scripts/codex-team.js status",
+        next: "node scripts/codex-team.js next",
+        roadmap: "node scripts/codex-team.js roadmap",
         "pipeline:scaffold": "node scripts/codex-team.js pipeline:scaffold",
         "gate:check:all": "node scripts/gate-validator.js --all",
         summary: "node scripts/codex-team.js summary",
+        "pr:pack": "node scripts/pr-pack.js",
       },
     }, null, 2));
     fs.writeFileSync(path.join(target, "package-lock.json"), JSON.stringify({
@@ -74,6 +78,17 @@ describe("release helper", () => {
 
     assert.equal(result.status, 1);
     assert.match(result.stderr, /package\.json version 9\.9\.9/);
+  });
+
+  it("fails when required CLI scripts are missing", () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(target, "package.json"), "utf8"));
+    delete pkg.scripts.next;
+    fs.writeFileSync(path.join(target, "package.json"), JSON.stringify(pkg, null, 2));
+
+    const result = run(["check"]);
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /missing npm script: next/);
   });
 
   it("writes release notes for the current version", () => {

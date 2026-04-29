@@ -30,9 +30,13 @@ function releaseChecks() {
     "lint",
     "validate",
     "doctor",
+    "status",
+    "next",
+    "roadmap",
     "pipeline:scaffold",
     "gate:check:all",
     "summary",
+    "pr:pack",
   ]) {
     if (!pkg.scripts?.[script]) errors.push(`missing npm script: ${script}`);
   }
