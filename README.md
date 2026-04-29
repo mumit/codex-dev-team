@@ -12,6 +12,7 @@ local/cloud execution profiles.
 - A structured 9-stage delivery pipeline
 - Codex skills for pipeline, implementation, review, and audit workflows
 - Deterministic JSON gates validated by `scripts/gate-validator.js`
+- Status dashboard for gates, key artifacts, and audit state
 - Stage 5 approval derivation from review files
 - Security-trigger and runbook helper checks
 - Bootstrap installation into target projects
