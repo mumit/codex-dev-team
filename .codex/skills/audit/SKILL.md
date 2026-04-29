@@ -17,6 +17,14 @@ a health check.
 
 ## Outputs
 
+Scaffold the expected audit workspace before collecting evidence:
+
+```bash
+npm run audit -- "<scope>"
+npm run audit:quick -- "<scope>"
+npm run health-check
+```
+
 Write:
 
 - `docs/audit/00-project-context.md`

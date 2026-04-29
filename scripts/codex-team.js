@@ -327,6 +327,7 @@ function usage() {
     "Core:",
     "  status | roadmap | validate | doctor | reset",
     "  review | security | runbook | lessons",
+    "  audit | audit-quick | health-check",
     "",
     "Pipeline:",
     "  pipeline <feature>",
@@ -352,6 +353,9 @@ function main() {
   if (command === "review") return runNodeScript("approval-derivation.js");
   if (command === "security") return runNodeScript("security-heuristic.js", process.argv.slice(3));
   if (command === "runbook") return runNodeScript("runbook-check.js");
+  if (command === "audit") return runNodeScript("audit.js", ["full", ...process.argv.slice(3)]);
+  if (command === "audit-quick") return runNodeScript("audit.js", ["quick", ...process.argv.slice(3)]);
+  if (command === "health-check") return runNodeScript("audit.js", ["health-check", ...process.argv.slice(3)]);
   if (command === "pipeline") return runPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline:new") return newPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline-brief") {

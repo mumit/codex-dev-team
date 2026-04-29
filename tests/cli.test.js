@@ -72,6 +72,39 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /Runbook OK/);
   });
 
+  it("audit command scaffolds full audit outputs", () => {
+    const result = run("audit", ["src/backend"]);
+
+    assert.equal(result.status, 0);
+    assert.ok(fs.existsSync(path.join(target, "docs", "audit", "00-project-context.md")));
+    assert.ok(fs.existsSync(path.join(target, "docs", "audit", "10-roadmap.md")));
+    const status = JSON.parse(fs.readFileSync(path.join(target, "docs", "audit", "status.json"), "utf8"));
+    assert.equal(status.mode, "full");
+    assert.equal(status.scope, "src/backend");
+    assert.ok(status.outputs.includes("docs/audit/10-roadmap.md"));
+  });
+
+  it("audit-quick command scaffolds orientation outputs only", () => {
+    const result = run("audit-quick", ["src/frontend"]);
+
+    assert.equal(result.status, 0);
+    assert.ok(fs.existsSync(path.join(target, "docs", "audit", "00-project-context.md")));
+    assert.ok(fs.existsSync(path.join(target, "docs", "audit", "01-architecture.md")));
+    assert.equal(fs.existsSync(path.join(target, "docs", "audit", "10-roadmap.md")), false);
+    const status = JSON.parse(fs.readFileSync(path.join(target, "docs", "audit", "status.json"), "utf8"));
+    assert.equal(status.mode, "quick");
+    assert.equal(status.scope, "src/frontend");
+  });
+
+  it("health-check command scaffolds audit status for a delta scan", () => {
+    const result = run("health-check");
+
+    assert.equal(result.status, 0);
+    const status = JSON.parse(fs.readFileSync(path.join(target, "docs", "audit", "status.json"), "utf8"));
+    assert.equal(status.mode, "health-check");
+    assert.equal(status.scope, "whole project");
+  });
+
   it("pipeline:new prepares workspace and records feature name", () => {
     const result = run("pipeline:new", ["Add search"]);
 

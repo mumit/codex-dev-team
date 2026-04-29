@@ -69,6 +69,9 @@ npm run doctor
 npm run validate
 npm run status
 npm run roadmap
+npm run audit -- "src/backend"
+npm run audit:quick -- "src/frontend"
+npm run health-check
 npm run reset
 npm run pipeline -- "Add authentication"
 npm run pipeline:new -- "Add authentication"
