@@ -479,7 +479,7 @@ function usage() {
 
 function main() {
   const command = process.argv[2];
-  if (command === "status") return runNodeScript("status.js");
+  if (command === "status") return runNodeScript("status.js", process.argv.slice(3));
   if (command === "summary") return runNodeScript("summary.js");
   if (command === "roadmap") return runNodeScript("roadmap.js");
   if (command === "validate") return validate();

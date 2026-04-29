@@ -43,12 +43,41 @@ function readiness(rows) {
   return "unknown";
 }
 
-function main() {
+function artifactRows() {
+  return ARTIFACTS.map((artifact) => ({
+    artifact,
+    status: fs.existsSync(path.join(ROOT, artifact)) ? "present" : "missing",
+  }));
+}
+
+function statusPayload() {
   const rows = gates();
+  return {
+    readiness: readiness(rows),
+    gates: rows.map(({ name, gate }) => ({
+      name,
+      stage: gate.stage || "",
+      status: gate.status || "",
+      agent: gate.agent || "",
+      blockers: Array.isArray(gate.blockers) ? gate.blockers.length : 0,
+    })),
+    artifacts: artifactRows(),
+  };
+}
+
+function main() {
+  const payload = statusPayload();
+  const rows = payload.gates.map(({ name, ...gate }) => ({ name, gate }));
+
+  if (process.argv.includes("--json")) {
+    console.log(JSON.stringify(payload, null, 2));
+    return;
+  }
+
   console.log("Codex Dev Team Status");
   console.log("=====================");
-  console.log(`Readiness: ${readiness(rows)}`);
-  console.log(`Gates: ${rows.length}`);
+  console.log(`Readiness: ${payload.readiness}`);
+  console.log(`Gates: ${payload.gates.length}`);
 
   if (rows.length === 0) {
     console.log("No gate files found.");
@@ -64,9 +93,8 @@ function main() {
   console.log("");
   console.log("Artifacts");
   console.log("=========");
-  for (const artifact of ARTIFACTS) {
-    const exists = fs.existsSync(path.join(ROOT, artifact));
-    console.log(`${exists ? "present" : "missing"} ${artifact}`);
+  for (const { artifact, status } of payload.artifacts) {
+    console.log(`${status} ${artifact}`);
   }
 
   const auditStatusPath = path.join(ROOT, "docs", "audit", "status.json");
@@ -90,4 +118,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { gates, readiness };
+module.exports = { gates, readiness, statusPayload };

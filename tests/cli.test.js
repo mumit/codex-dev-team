@@ -67,6 +67,18 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /mode=quick scope=src\/backend status=scaffolded/);
   });
 
+  it("status can emit JSON for automation", () => {
+    run("stage", ["requirements"]);
+
+    const result = run("status", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.readiness, "in-progress");
+    assert.equal(payload.gates[0].name, "stage-01.json");
+    assert.equal(payload.artifacts.find((row) => row.artifact === "pipeline/brief.md").status, "present");
+  });
+
   it("summary writes a durable pipeline summary", () => {
     run("stage", ["requirements"]);
 
