@@ -17,6 +17,8 @@
     "health-check": "node scripts/codex-team.js health-check",
     "validate": "node scripts/codex-team.js validate",
     "doctor": "node scripts/codex-team.js doctor",
+    "release:check": "node scripts/release.js check",
+    "release:notes": "node scripts/release.js notes",
     "reset": "node scripts/codex-team.js reset",
     "review:derive": "node scripts/approval-derivation.js",
     "security:check": "node scripts/security-heuristic.js",
