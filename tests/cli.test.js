@@ -79,6 +79,28 @@ describe("codex-team CLI", () => {
     assert.equal(payload.artifacts.find((row) => row.artifact === "pipeline/brief.md").status, "present");
   });
 
+  it("next reports the next pipeline action", () => {
+    const result = run("next");
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Next Pipeline Step/);
+    assert.match(result.stdout, /Stage: stage-01 \(requirements\)/);
+    assert.match(result.stdout, /Command: npm run stage -- requirements/);
+  });
+
+  it("next can emit JSON for automation", () => {
+    run("stage", ["requirements"]);
+
+    const result = run("next", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.complete, false);
+    assert.equal(payload.action, "complete-stage");
+    assert.equal(payload.stage, "stage-01");
+    assert.equal(payload.command, "npm run prompt -- requirements");
+  });
+
   it("summary writes a durable pipeline summary", () => {
     run("stage", ["requirements"]);
 

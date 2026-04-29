@@ -11,6 +11,7 @@
     "gate:check:all": "node scripts/gate-validator.js --all",
     "pipeline:check": "node scripts/consistency.js",
     "status": "node scripts/codex-team.js status",
+    "next": "node scripts/codex-team.js next",
     "summary": "node scripts/codex-team.js summary",
     "roadmap": "node scripts/codex-team.js roadmap",
     "audit": "node scripts/codex-team.js audit",

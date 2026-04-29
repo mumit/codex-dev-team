@@ -77,6 +77,8 @@ npm run release:notes
 npm run pr:pack
 npm run status
 npm run status -- --json
+npm run next
+npm run next -- --json
 npm run summary
 npm run roadmap
 npm run roadmap -- --json

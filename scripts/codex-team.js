@@ -161,6 +161,20 @@ function stageNames() {
   return Object.keys(STAGES).filter((name) => STAGES[name]);
 }
 
+function orderedStageNames() {
+  return [
+    "requirements",
+    "design",
+    "clarification",
+    "build",
+    "pre-review",
+    "peer-review",
+    "qa",
+    "deploy",
+    "retrospective",
+  ];
+}
+
 function roleNamesForConfig(config) {
   return config.role
     .split("|")
@@ -296,6 +310,115 @@ function printContext() {
 
   console.log("");
   return runNodeScript("status.js");
+}
+
+function readGate(stage) {
+  const gatePath = path.join(ROOT, "pipeline", "gates", `${stage}.json`);
+  if (!fs.existsSync(gatePath)) return { exists: false, gate: null };
+
+  try {
+    return {
+      exists: true,
+      gate: JSON.parse(fs.readFileSync(gatePath, "utf8")),
+    };
+  } catch (error) {
+    return {
+      exists: true,
+      gate: {
+        stage,
+        status: "INVALID",
+        error: error.message,
+      },
+    };
+  }
+}
+
+function nextPayload() {
+  for (const name of orderedStageNames()) {
+    const config = STAGES[name];
+    const gate = readGate(config.stage);
+
+    if (!gate.exists) {
+      return {
+        complete: false,
+        action: "scaffold-stage",
+        stage: config.stage,
+        name,
+        role: config.role,
+        reason: "gate-missing",
+        command: `npm run stage -- ${name}`,
+      };
+    }
+
+    if (gate.gate.status === "INVALID") {
+      return {
+        complete: false,
+        action: "repair-gate",
+        stage: config.stage,
+        name,
+        role: config.role,
+        reason: "gate-invalid",
+        command: "npm run validate",
+      };
+    }
+
+    if (gate.gate.status === "ESCALATE") {
+      return {
+        complete: false,
+        action: "resolve-escalation",
+        stage: config.stage,
+        name,
+        role: config.role,
+        reason: "gate-escalated",
+        command: `npm run prompt -- ${name}`,
+      };
+    }
+
+    if (gate.gate.status !== "PASS") {
+      return {
+        complete: false,
+        action: "complete-stage",
+        stage: config.stage,
+        name,
+        role: config.role,
+        reason: `gate-${String(gate.gate.status || "unknown").toLowerCase()}`,
+        command: `npm run prompt -- ${name}`,
+      };
+    }
+  }
+
+  return {
+    complete: true,
+    action: "pipeline-complete",
+    stage: null,
+    name: null,
+    role: null,
+    reason: "all-gates-pass",
+    command: "npm run summary",
+  };
+}
+
+function printNext(args = []) {
+  const payload = nextPayload();
+  if (args.includes("--json")) {
+    console.log(JSON.stringify(payload, null, 2));
+    return 0;
+  }
+
+  if (payload.complete) {
+    console.log("Pipeline complete.");
+    console.log(`Next: ${payload.command}`);
+    return 0;
+  }
+
+  console.log("Next Pipeline Step");
+  console.log("==================");
+  console.log(`Stage: ${payload.stage} (${payload.name})`);
+  console.log(`Role: ${payload.role}`);
+  console.log(`Reason: ${payload.reason}`);
+  console.log(`Action: ${payload.action}`);
+  console.log(`Command: ${payload.command}`);
+  return 0;
 }
 
 function runPipeline(feature) {
@@ -457,7 +580,7 @@ function usage() {
     "Usage: codex-team <command>",
     "",
     "Core:",
-    "  status | roadmap | validate | doctor | reset",
+    "  status | next | roadmap | validate | doctor | reset",
     "  review | security | runbook | lessons | summary",
     "  audit | audit-quick | health-check",
     "",
@@ -480,6 +603,7 @@ function usage() {
 function main() {
   const command = process.argv[2];
   if (command === "status") return runNodeScript("status.js", process.argv.slice(3));
+  if (command === "next") return printNext(process.argv.slice(3));
   if (command === "summary") return runNodeScript("summary.js");
   if (command === "roadmap") return runNodeScript("roadmap.js", process.argv.slice(3));
   if (command === "validate") return validate();
