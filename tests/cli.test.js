@@ -38,6 +38,7 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /PASS scripts\/summary\.js/);
     assert.match(result.stdout, /PASS scripts\/release\.js/);
     assert.match(result.stdout, /PASS scripts\/pr-pack\.js/);
+    assert.match(result.stdout, /PASS \.codex\/prompts\/roles\/pm\.md/);
     assert.match(result.stdout, /PASS schemas\/stage-09\.schema\.json/);
     assert.match(result.stdout, /PASS templates\/retrospective-template\.md/);
   });
@@ -243,6 +244,8 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /Role: PM/);
     assert.match(result.stdout, /Stage: stage-01 \(requirements\)/);
     assert.match(result.stdout, /Feature: Add search/);
+    assert.match(result.stdout, /Role briefs:/);
+    assert.match(result.stdout, /\.codex\/prompts\/roles\/pm\.md/);
     assert.match(result.stdout, /Read first:/);
     assert.match(result.stdout, /Allowed writes:/);
     assert.match(result.stdout, /pipeline\/gates\/stage-01\.json/);
@@ -254,6 +257,21 @@ describe("codex-team CLI", () => {
 
     assert.equal(result.status, 1);
     assert.match(result.stderr, /Unknown stage/);
+  });
+
+  it("role command prints role prompt briefs", () => {
+    const result = run("role", ["qa"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /# QA Role Brief/);
+    assert.match(result.stdout, /acceptance-criterion-to-test map/);
+  });
+
+  it("role command rejects unknown roles", () => {
+    const result = run("role", ["mystery"]);
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Unknown role/);
   });
 
   it("stage requirements scaffolds brief and draft gate", () => {

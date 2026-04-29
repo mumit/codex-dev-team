@@ -69,4 +69,14 @@ describe("framework contracts", () => {
       assert.match(body, /lessons-learned\.md/, `${skill} should read lessons`);
     }
   });
+
+  it("role prompt briefs exist for all framework roles", () => {
+    for (const role of ["backend", "frontend", "platform", "pm", "principal", "qa", "reviewer", "security"]) {
+      const body = read(`.codex/prompts/roles/${role}.md`);
+      assert.match(body, new RegExp(`# .*Role Brief`));
+      assert.match(body, /## Read First/);
+      assert.match(body, /## Writes/);
+      assert.match(body, /## Handoff/);
+    }
+  });
 });

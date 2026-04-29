@@ -32,6 +32,7 @@
     "pipeline:context": "node scripts/codex-team.js pipeline-context",
     "design": "node scripts/codex-team.js design",
     "retrospective": "node scripts/codex-team.js retrospective",
+    "role": "node scripts/codex-team.js role",
     "prompt": "node scripts/codex-team.js prompt",
     "stage": "node scripts/codex-team.js stage",
     "lessons": "node scripts/codex-team.js lessons"

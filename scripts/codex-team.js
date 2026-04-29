@@ -161,6 +161,14 @@ function stageNames() {
   return Object.keys(STAGES).filter((name) => STAGES[name]);
 }
 
+function roleNamesForConfig(config) {
+  return config.role
+    .split("|")
+    .map((name) => name.trim().toLowerCase())
+    .filter(Boolean)
+    .map((name) => name === "pm" ? "pm" : name);
+}
+
 function exists(relativePath) {
   return fs.existsSync(path.join(ROOT, relativePath));
 }
@@ -249,6 +257,8 @@ function promptForStage(name, feature) {
   if (feature) console.log(`Feature: ${feature}`);
   console.log(`Objective: ${config.objective}`);
   console.log("");
+  printList("Role briefs", roleNamesForConfig(config).map((role) => `.codex/prompts/roles/${role}.md`));
+  console.log("");
   printList("Read first", config.readFirst);
   console.log("");
   printList("Allowed writes", config.allowedWrites);
@@ -260,6 +270,19 @@ function promptForStage(name, feature) {
   console.log("- Set status to PASS only when the deterministic criteria are satisfied.");
   console.log("");
   printList("Verification", ["npm run validate", "npm run status"]);
+  return 0;
+}
+
+function printRole(name) {
+  const normalized = (name || "").toLowerCase();
+  const rolePath = path.join(ROOT, ".codex", "prompts", "roles", `${normalized}.md`);
+  if (!normalized || !fs.existsSync(rolePath)) {
+    console.error(`Unknown role: ${name || ""}`);
+    console.error("Known roles: backend, frontend, platform, pm, principal, qa, reviewer, security");
+    return 1;
+  }
+
+  process.stdout.write(fs.readFileSync(rolePath, "utf8"));
   return 0;
 }
 
@@ -407,6 +430,10 @@ function doctor() {
     checks.push([`templates/${template}`, exists(`templates/${template}`)]);
   }
 
+  for (const role of ["backend", "frontend", "platform", "pm", "principal", "qa", "reviewer", "security"]) {
+    checks.push([`.codex/prompts/roles/${role}.md`, exists(`.codex/prompts/roles/${role}.md`)]);
+  }
+
   let failed = false;
   for (const [name, ok] of checks) {
     console.log(`${ok ? "PASS" : "FAIL"} ${name}`);
@@ -440,6 +467,7 @@ function usage() {
     "  pipeline-review",
     "  pipeline-context",
     "  retrospective",
+    "  role <name>",
     "  prompt <stage> [feature]",
     "  stage <requirements|design|clarification|build|pre-review|peer-review|qa|deploy|retrospective>",
   ].join("\n"));
@@ -472,6 +500,7 @@ function main() {
   if (command === "pipeline-review") return runPipelineReview();
   if (command === "pipeline-context") return printContext();
   if (command === "retrospective") return runRetrospective();
+  if (command === "role") return printRole(process.argv[3]);
   if (command === "prompt") return promptForStage(process.argv[3], process.argv.slice(4).join(" "));
   if (command === "stage") return scaffoldStage(process.argv[3]);
   if (command === "lessons") return runNodeScript("lessons.js", process.argv.slice(3));

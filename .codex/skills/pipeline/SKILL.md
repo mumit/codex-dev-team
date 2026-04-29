@@ -75,6 +75,7 @@ Generate the standard prompt shape with:
 
 ```bash
 npm run prompt -- requirements "<feature name>"
+npm run role -- pm
 ```
 
 Write gates under `pipeline/gates/` and run:
