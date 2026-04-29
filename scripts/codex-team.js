@@ -149,6 +149,54 @@ function scaffoldStage(name) {
   return 0;
 }
 
+function printContext() {
+  const contextPath = path.join(ROOT, "pipeline", "context.md");
+  if (fs.existsSync(contextPath)) {
+    console.log(fs.readFileSync(contextPath, "utf8").trimEnd());
+  } else {
+    console.log("No pipeline/context.md found.");
+  }
+
+  console.log("");
+  return runNodeScript("status.js");
+}
+
+function runPipeline(feature) {
+  const status = newPipeline(feature);
+  if (status !== 0) return status;
+  const stageStatus = scaffoldStage("requirements");
+  if (stageStatus !== 0) return stageStatus;
+  console.log("");
+  console.log("Next: complete pipeline/brief.md, write the Stage 1 gate, then run npm run validate.");
+  return 0;
+}
+
+function runDesign(feature) {
+  const status = newPipeline(feature);
+  if (status !== 0) return status;
+  const requirementsStatus = scaffoldStage("requirements");
+  if (requirementsStatus !== 0) return requirementsStatus;
+  const designStatus = scaffoldStage("design");
+  if (designStatus !== 0) return designStatus;
+  console.log("");
+  console.log("Next: complete requirements and design artifacts, then run npm run validate.");
+  return 0;
+}
+
+function runPipelineReview() {
+  const stageStatus = scaffoldStage("review");
+  if (stageStatus !== 0) return stageStatus;
+  return runNodeScript("approval-derivation.js");
+}
+
+function runRetrospective() {
+  const stageStatus = scaffoldStage("retrospective");
+  if (stageStatus !== 0) return stageStatus;
+  console.log("");
+  console.log("Next: add durable LESSON: lines, then run npm run lessons -- promote.");
+  return 0;
+}
+
 function newPipeline(name) {
   fs.mkdirSync(path.join(ROOT, "pipeline", "gates"), { recursive: true });
   fs.mkdirSync(path.join(ROOT, "pipeline", "adr"), { recursive: true });
@@ -216,7 +264,23 @@ function validate() {
 }
 
 function usage() {
-  console.log("Usage: codex-team <status|roadmap|validate|doctor|reset|review|security|runbook|pipeline:new|stage|lessons>");
+  console.log([
+    "Usage: codex-team <command>",
+    "",
+    "Core:",
+    "  status | roadmap | validate | doctor | reset",
+    "  review | security | runbook | lessons",
+    "",
+    "Pipeline:",
+    "  pipeline <feature>",
+    "  pipeline:new <feature>",
+    "  pipeline-brief [feature]",
+    "  design <feature>",
+    "  pipeline-review",
+    "  pipeline-context",
+    "  retrospective",
+    "  stage <requirements|design|review|qa|deploy|retrospective>",
+  ].join("\n"));
   return 1;
 }
 
@@ -230,7 +294,17 @@ function main() {
   if (command === "review") return runNodeScript("approval-derivation.js");
   if (command === "security") return runNodeScript("security-heuristic.js", process.argv.slice(3));
   if (command === "runbook") return runNodeScript("runbook-check.js");
+  if (command === "pipeline") return runPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline:new") return newPipeline(process.argv.slice(3).join(" "));
+  if (command === "pipeline-brief") {
+    const feature = process.argv.slice(3).join(" ");
+    if (feature) newPipeline(feature);
+    return scaffoldStage("requirements");
+  }
+  if (command === "design") return runDesign(process.argv.slice(3).join(" "));
+  if (command === "pipeline-review") return runPipelineReview();
+  if (command === "pipeline-context") return printContext();
+  if (command === "retrospective") return runRetrospective();
   if (command === "stage") return scaffoldStage(process.argv[3]);
   if (command === "lessons") return runNodeScript("lessons.js", process.argv.slice(3));
   return usage();

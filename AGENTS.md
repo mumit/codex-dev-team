@@ -30,6 +30,22 @@ below.
 - Keep changes scoped to the role's ownership unless the user approves a wider change.
 - Run `npm test` and `npm run lint` before committing framework changes.
 
+## Command Shims
+
+Use these local npm scripts when a user asks for the matching command-style workflow:
+
+| User intent | Local command |
+|---|---|
+| `/pipeline <feature>` | `npm run pipeline -- "<feature>"` |
+| `/pipeline-brief <feature>` | `npm run pipeline:brief -- "<feature>"` |
+| `/design <feature>` | `npm run design -- "<feature>"` |
+| `/pipeline-review` | `npm run pipeline:review` |
+| `/pipeline-context` | `npm run pipeline:context` |
+| `/retrospective` | `npm run retrospective` |
+| `/stage <name>` | `npm run stage -- <name>` |
+| `/status` | `npm run status` |
+| `/roadmap` | `npm run roadmap` |
+
 ## Local vs Cloud
 
 Tasks must be self-contained enough to run in Codex local, Codex app worktrees,

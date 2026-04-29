@@ -20,6 +20,12 @@ Use this skill to run the structured Codex Dev Team pipeline.
 Initialize the workspace when starting a new run:
 
 ```bash
+npm run pipeline -- "<feature name>"
+```
+
+Use the lower-level initializer only when you need an empty runtime workspace:
+
+```bash
 npm run pipeline:new -- "<feature name>"
 ```
 
@@ -68,6 +74,11 @@ npm run gate:check
 To scaffold common stage artifacts:
 
 ```bash
+npm run pipeline:brief -- "<feature name>"
+npm run design -- "<feature name>"
+npm run pipeline:review
+npm run pipeline:context
+npm run retrospective
 npm run stage -- requirements
 npm run stage -- design
 npm run stage -- review

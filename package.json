@@ -16,7 +16,13 @@
     "review:derive": "node scripts/approval-derivation.js",
     "security:check": "node scripts/security-heuristic.js",
     "runbook:check": "node scripts/runbook-check.js",
+    "pipeline": "node scripts/codex-team.js pipeline",
     "pipeline:new": "node scripts/codex-team.js pipeline:new",
+    "pipeline:brief": "node scripts/codex-team.js pipeline-brief",
+    "pipeline:review": "node scripts/codex-team.js pipeline-review",
+    "pipeline:context": "node scripts/codex-team.js pipeline-context",
+    "design": "node scripts/codex-team.js design",
+    "retrospective": "node scripts/codex-team.js retrospective",
     "stage": "node scripts/codex-team.js stage",
     "lessons": "node scripts/codex-team.js lessons"
   }

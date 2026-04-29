@@ -70,7 +70,13 @@ npm run validate
 npm run status
 npm run roadmap
 npm run reset
+npm run pipeline -- "Add authentication"
 npm run pipeline:new -- "Add authentication"
+npm run pipeline:brief -- "Add authentication"
+npm run design -- "Add authentication"
+npm run pipeline:review
+npm run pipeline:context
+npm run retrospective
 npm run stage -- requirements
 npm run stage -- design
 npm run stage -- qa
