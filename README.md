@@ -70,6 +70,7 @@ you decide to publish a remote.
 npm run doctor
 npm run gate:check
 npm run gate:check:all
+npm run pipeline:check
 npm run validate
 npm run release:check
 npm run release:notes

@@ -405,6 +405,7 @@ function doctor() {
     [".codex/skills/pipeline/SKILL.md", exists(".codex/skills/pipeline/SKILL.md")],
     ["schemas/gate.schema.json", exists("schemas/gate.schema.json")],
     ["scripts/gate-validator.js", exists("scripts/gate-validator.js")],
+    ["scripts/consistency.js", exists("scripts/consistency.js")],
     ["scripts/summary.js", exists("scripts/summary.js")],
     ["scripts/release.js", exists("scripts/release.js")],
     ["scripts/pr-pack.js", exists("scripts/pr-pack.js")],
@@ -446,7 +447,9 @@ function doctor() {
 function validate() {
   const lint = runNodeScript("lint-syntax.js");
   if (lint !== 0) return lint;
-  return runNodeScript("gate-validator.js", ["--all"]);
+  const gates = runNodeScript("gate-validator.js", ["--all"]);
+  if (gates !== 0) return gates;
+  return runNodeScript("consistency.js");
 }
 
 function usage() {

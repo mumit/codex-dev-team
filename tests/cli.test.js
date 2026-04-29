@@ -35,6 +35,7 @@ describe("codex-team CLI", () => {
     assert.equal(result.status, 0);
     assert.match(result.stdout, /PASS AGENTS\.md/);
     assert.match(result.stdout, /PASS scripts\/gate-validator\.js/);
+    assert.match(result.stdout, /PASS scripts\/consistency\.js/);
     assert.match(result.stdout, /PASS scripts\/summary\.js/);
     assert.match(result.stdout, /PASS scripts\/release\.js/);
     assert.match(result.stdout, /PASS scripts\/pr-pack\.js/);

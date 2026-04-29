@@ -51,7 +51,9 @@ non-empty string.
 
 - `npm run gate:check` validates the latest gate only.
 - `npm run gate:check:all` validates every gate in `pipeline/gates/`.
-- `npm run validate` runs syntax checks and validates every gate.
+- `npm run pipeline:check` validates cross-stage artifact/gate consistency.
+- `npm run validate` runs syntax checks, validates every gate, and checks
+  cross-stage consistency.
 
 ## Stage-Specific Fields
 
