@@ -28,5 +28,11 @@ jobs:
 
       - run: npm test
 
+      - run: npm run validate
+
+      - run: npm run doctor
+
+      - run: npm run release:check
+
       - name: Coverage summary
         run: npm run test:coverage

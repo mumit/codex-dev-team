@@ -79,4 +79,11 @@ describe("framework contracts", () => {
       assert.match(body, /## Handoff/);
     }
   });
+
+  it("CI runs framework release checks", () => {
+    const workflow = read(".github/workflows/test.yml");
+    for (const command of ["npm run lint", "npm test", "npm run validate", "npm run doctor", "npm run release:check"]) {
+      assert.match(workflow, new RegExp(command.replaceAll(" ", "\\s+")));
+    }
+  });
 });
