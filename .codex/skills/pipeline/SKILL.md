@@ -118,6 +118,12 @@ Run retrospective, update `pipeline/context.md`, and summarize:
 - open risks
 - PR readiness
 
+Generate a durable run summary with:
+
+```bash
+npm run summary
+```
+
 If the retrospective contains durable learning, write lines beginning with
 `LESSON:` in `pipeline/retrospective.md`, then run:
 

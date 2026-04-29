@@ -407,7 +407,7 @@ function usage() {
     "",
     "Core:",
     "  status | roadmap | validate | doctor | reset",
-    "  review | security | runbook | lessons",
+    "  review | security | runbook | lessons | summary",
     "  audit | audit-quick | health-check",
     "",
     "Pipeline:",
@@ -428,6 +428,7 @@ function usage() {
 function main() {
   const command = process.argv[2];
   if (command === "status") return runNodeScript("status.js");
+  if (command === "summary") return runNodeScript("summary.js");
   if (command === "roadmap") return runNodeScript("roadmap.js");
   if (command === "validate") return validate();
   if (command === "doctor") return doctor();

@@ -58,6 +58,20 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /mode=quick scope=src\/backend status=scaffolded/);
   });
 
+  it("summary writes a durable pipeline summary", () => {
+    run("stage", ["requirements"]);
+
+    const result = run("summary");
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /wrote pipeline\/summary\.md/);
+    const summary = fs.readFileSync(path.join(target, "pipeline", "summary.md"), "utf8");
+    assert.match(summary, /# Pipeline Summary/);
+    assert.match(summary, /stage-01\.json/);
+    assert.match(summary, /pipeline\/brief\.md \| present/);
+    assert.match(summary, /pipeline\/design-spec\.md \| missing/);
+  });
+
   it("reset archives context and recreates runtime folders", () => {
     const gates = path.join(target, "pipeline", "gates");
     const lessons = path.join(target, "pipeline", "lessons-learned.md");
