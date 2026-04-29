@@ -59,6 +59,23 @@ describe("bootstrap", () => {
     assert.match(gitignore, /\.codex\/config\.local\.yml/);
   });
 
+  it("adds missing npm command shims when package.json exists", () => {
+    fs.writeFileSync(path.join(target, "package.json"), JSON.stringify({
+      scripts: {
+        test: "node --test",
+        status: "custom-status",
+      },
+    }, null, 2));
+
+    run();
+    const pkg = JSON.parse(fs.readFileSync(path.join(target, "package.json"), "utf8"));
+
+    assert.equal(pkg.scripts.test, "node --test");
+    assert.equal(pkg.scripts.status, "custom-status");
+    assert.equal(pkg.scripts.next, "node scripts/codex-team.js next");
+    assert.equal(pkg.scripts["pipeline:scaffold"], "node scripts/codex-team.js pipeline:scaffold");
+  });
+
   it("stamps framework version", () => {
     run();
     const source = fs.readFileSync(path.join(ROOT, "VERSION"), "utf8");

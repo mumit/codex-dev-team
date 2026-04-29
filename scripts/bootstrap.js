@@ -5,6 +5,35 @@ const path = require("node:path");
 const SOURCE = path.resolve(__dirname, "..");
 const TARGET = path.resolve(process.argv[2] || process.cwd());
 
+const PACKAGE_SCRIPTS = {
+  help: "node scripts/codex-team.js help",
+  status: "node scripts/codex-team.js status",
+  next: "node scripts/codex-team.js next",
+  summary: "node scripts/codex-team.js summary",
+  roadmap: "node scripts/codex-team.js roadmap",
+  validate: "node scripts/codex-team.js validate",
+  doctor: "node scripts/codex-team.js doctor",
+  "pipeline:check": "node scripts/consistency.js",
+  pipeline: "node scripts/codex-team.js pipeline",
+  "pipeline:scaffold": "node scripts/codex-team.js pipeline:scaffold",
+  "pipeline:brief": "node scripts/codex-team.js pipeline-brief",
+  "pipeline:review": "node scripts/codex-team.js pipeline-review",
+  "pipeline:context": "node scripts/codex-team.js pipeline-context",
+  design: "node scripts/codex-team.js design",
+  retrospective: "node scripts/codex-team.js retrospective",
+  stage: "node scripts/codex-team.js stage",
+  prompt: "node scripts/codex-team.js prompt",
+  role: "node scripts/codex-team.js role",
+  audit: "node scripts/codex-team.js audit",
+  "audit:quick": "node scripts/codex-team.js audit-quick",
+  "health-check": "node scripts/codex-team.js health-check",
+  "review:derive": "node scripts/approval-derivation.js",
+  "security:check": "node scripts/security-heuristic.js",
+  "runbook:check": "node scripts/runbook-check.js",
+  lessons: "node scripts/codex-team.js lessons",
+  "pr:pack": "node scripts/pr-pack.js",
+};
+
 function copyDir(src, dest) {
   fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
@@ -47,6 +76,23 @@ AGENTS.local.md
 `);
 }
 
+function addPackageScripts(target) {
+  const packagePath = path.join(target, "package.json");
+  if (!fs.existsSync(packagePath)) return;
+
+  const pkg = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+  pkg.scripts = pkg.scripts || {};
+  let changed = false;
+  for (const [name, command] of Object.entries(PACKAGE_SCRIPTS)) {
+    if (!pkg.scripts[name]) {
+      pkg.scripts[name] = command;
+      changed = true;
+    }
+  }
+
+  if (changed) fs.writeFileSync(packagePath, `${JSON.stringify(pkg, null, 2)}\n`);
+}
+
 function main() {
   if (!fs.existsSync(TARGET) || !fs.statSync(TARGET).isDirectory()) {
     console.error(`Target directory does not exist: ${TARGET}`);
@@ -73,6 +119,7 @@ function main() {
 
   fs.copyFileSync(path.join(SOURCE, "VERSION"), path.join(TARGET, ".codex", "VERSION"));
   appendGitignore(TARGET);
+  addPackageScripts(TARGET);
 
   console.log(`Codex Dev Team installed into ${TARGET}`);
 }

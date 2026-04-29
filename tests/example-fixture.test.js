@@ -34,9 +34,10 @@ describe("tiny app example", () => {
         encoding: "utf8",
       });
 
-      const scaffold = spawnSync(process.execPath, [
-        path.join(target, "scripts", "codex-team.js"),
+      const scaffold = spawnSync("npm", [
+        "run",
         "pipeline:scaffold",
+        "--",
         "Add health endpoint",
       ], {
         cwd: target,
