@@ -1,0 +1,9 @@
+{
+  "name": "codex-dev-team-tiny-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node src/tests/health.test.js"
+  }
+}

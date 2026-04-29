@@ -55,6 +55,7 @@ schemas/
 scripts/
 tests/
 pipeline/
+examples/
 ```
 
 ## Status

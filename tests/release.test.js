@@ -14,6 +14,7 @@ describe("release helper", () => {
   beforeEach(() => {
     target = fs.mkdtempSync(path.join(os.tmpdir(), "codex-release-"));
     fs.mkdirSync(path.join(target, ".codex"), { recursive: true });
+    fs.mkdirSync(path.join(target, "examples", "tiny-app"), { recursive: true });
     fs.mkdirSync(path.join(target, ".github", "workflows"), { recursive: true });
     fs.mkdirSync(path.join(target, "scripts"), { recursive: true });
     fs.writeFileSync(path.join(target, "VERSION"), "1.2.3\n");
@@ -23,6 +24,7 @@ describe("release helper", () => {
     fs.writeFileSync(path.join(target, ".github", "workflows", "test.yml"), "name: test\n");
     fs.writeFileSync(path.join(target, "scripts", "codex-team.js"), "");
     fs.writeFileSync(path.join(target, "scripts", "gate-validator.js"), "");
+    fs.writeFileSync(path.join(target, "examples", "tiny-app", "package.json"), "{}");
     fs.writeFileSync(path.join(target, "package.json"), JSON.stringify({
       version: "1.2.3",
       scripts: {

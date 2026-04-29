@@ -44,6 +44,7 @@ function releaseChecks() {
     ".github/workflows/test.yml",
     "scripts/codex-team.js",
     "scripts/gate-validator.js",
+    "examples/tiny-app/package.json",
   ]) {
     if (!exists(file)) errors.push(`missing release file: ${file}`);
   }
