@@ -109,3 +109,6 @@ npm run runbook:check
 npm run lessons -- show
 npm run lessons -- promote
 ```
+
+Set `CODEX_TEAM_TRACK=quick` (or another supported gate track) before stage or
+prompt commands to stamp that track into generated gates.

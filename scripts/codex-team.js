@@ -5,6 +5,7 @@ const { spawnSync } = require("node:child_process");
 
 const ROOT = process.cwd();
 const TEMPLATE_DIR = path.join(ROOT, "templates");
+const TRACKS = ["full", "quick", "nano", "config-only", "dep-update", "hotfix"];
 
 const STAGES = {
   requirements: {
@@ -211,7 +212,15 @@ function writeIfMissing(relativePath, content) {
 }
 
 function currentTrack() {
-  return "full";
+  return process.env.CODEX_TEAM_TRACK || "full";
+}
+
+function validateTrack() {
+  const track = currentTrack();
+  if (TRACKS.includes(track)) return true;
+  console.error(`Unsupported CODEX_TEAM_TRACK: ${track}`);
+  console.error(`Known tracks: ${TRACKS.join(", ")}`);
+  return false;
 }
 
 function draftGate(stageConfig) {
@@ -236,6 +245,7 @@ function draftGate(stageConfig) {
 }
 
 function scaffoldStage(name) {
+  if (!validateTrack()) return 1;
   const canonicalName = canonicalStageName(name);
   const config = STAGES[canonicalName];
   if (!config) {
@@ -257,6 +267,7 @@ function printList(title, items) {
 }
 
 function promptForStage(name, feature) {
+  if (!validateTrack()) return 1;
   const canonicalName = canonicalStageName(name);
   const config = STAGES[canonicalName];
   if (!config) {

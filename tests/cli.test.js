@@ -23,10 +23,11 @@ describe("codex-team CLI", () => {
     fs.rmSync(target, { recursive: true, force: true });
   });
 
-  function run(command, args = []) {
+  function run(command, args = [], env = {}) {
     return spawnSync(process.execPath, [CLI, command, ...args], {
       cwd: target,
       encoding: "utf8",
+      env: { ...process.env, ...env },
     });
   }
 
@@ -342,6 +343,22 @@ describe("codex-team CLI", () => {
     const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-01.json"), "utf8"));
     assert.equal(gate.stage, "stage-01");
     assert.equal(gate.required_sections_complete, false);
+  });
+
+  it("stage commands honor CODEX_TEAM_TRACK", () => {
+    const result = run("stage", ["requirements"], { CODEX_TEAM_TRACK: "quick" });
+
+    assert.equal(result.status, 0);
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-01.json"), "utf8"));
+    assert.equal(gate.track, "quick");
+  });
+
+  it("stage commands reject unsupported CODEX_TEAM_TRACK values", () => {
+    const result = run("stage", ["requirements"], { CODEX_TEAM_TRACK: "mystery" });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Unsupported CODEX_TEAM_TRACK: mystery/);
+    assert.equal(fs.existsSync(path.join(target, "pipeline", "gates", "stage-01.json")), false);
   });
 
   it("stage design scaffolds design spec and draft gate", () => {
