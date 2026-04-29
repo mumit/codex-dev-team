@@ -37,6 +37,7 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /PASS scripts\/gate-validator\.js/);
     assert.match(result.stdout, /PASS scripts\/summary\.js/);
     assert.match(result.stdout, /PASS scripts\/release\.js/);
+    assert.match(result.stdout, /PASS scripts\/pr-pack\.js/);
     assert.match(result.stdout, /PASS schemas\/stage-09\.schema\.json/);
     assert.match(result.stdout, /PASS templates\/retrospective-template\.md/);
   });

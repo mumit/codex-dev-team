@@ -72,6 +72,7 @@ npm run gate:check:all
 npm run validate
 npm run release:check
 npm run release:notes
+npm run pr:pack
 npm run status
 npm run summary
 npm run roadmap

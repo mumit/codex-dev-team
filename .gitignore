@@ -19,3 +19,6 @@ pipeline/deploy-log.md
 pipeline/hotfix-spec.md
 pipeline/gates/
 pipeline/adr/
+
+# Generated local packaging notes
+docs/pr/

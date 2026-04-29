@@ -384,6 +384,7 @@ function doctor() {
     ["scripts/gate-validator.js", exists("scripts/gate-validator.js")],
     ["scripts/summary.js", exists("scripts/summary.js")],
     ["scripts/release.js", exists("scripts/release.js")],
+    ["scripts/pr-pack.js", exists("scripts/pr-pack.js")],
     ["pipeline/context.md", exists("pipeline/context.md")],
     ["pipeline/lessons-learned.md", exists("pipeline/lessons-learned.md")],
   ];
