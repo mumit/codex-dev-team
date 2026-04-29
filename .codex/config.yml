@@ -1,0 +1,32 @@
+# Codex Dev Team configuration
+
+framework:
+  version: "0.1.0"
+
+execution:
+  default_profile: local
+  profiles:
+    local:
+      description: "Run in the current checkout with user-visible edits."
+    app_worktree:
+      description: "Run in an isolated Codex app worktree."
+    cloud:
+      description: "Run as a delegated cloud task with a self-contained prompt."
+
+pipeline:
+  default_track: full
+  require_json_gates: true
+  max_review_rounds: 2
+
+security:
+  trigger_paths:
+    - "src/backend/auth*"
+    - "src/backend/crypto*"
+    - "src/backend/payment*"
+    - "src/backend/pii*"
+    - "*secret*"
+    - "*token*"
+    - "*credential*"
+
+deploy:
+  adapter: manual

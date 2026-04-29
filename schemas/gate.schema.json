@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/gate.schema.json",
+  "title": "Codex Dev Team Gate",
+  "type": "object",
+  "required": [
+    "stage",
+    "status",
+    "agent",
+    "track",
+    "timestamp",
+    "blockers",
+    "warnings"
+  ],
+  "properties": {
+    "stage": { "type": "string", "pattern": "^stage-[0-9]{2}([-.][a-z0-9-]+)?$" },
+    "status": { "type": "string", "enum": ["PASS", "FAIL", "ESCALATE"] },
+    "agent": { "type": "string", "minLength": 1 },
+    "track": {
+      "type": "string",
+      "enum": ["full", "quick", "nano", "config-only", "dep-update", "hotfix"]
+    },
+    "timestamp": { "type": "string", "minLength": 1 },
+    "blockers": { "type": "array" },
+    "warnings": { "type": "array" },
+    "retry_number": { "type": "number" },
+    "previous_failure_reason": { "type": "string" },
+    "this_attempt_differs_by": { "type": "string" }
+  },
+  "additionalProperties": true
+}

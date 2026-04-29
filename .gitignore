@@ -1,0 +1,21 @@
+node_modules/
+.DS_Store
+*.log
+*.tmp
+
+# Local Codex overrides
+.codex/**/*.local.*
+.codex/config.local.yml
+AGENTS.local.md
+
+# Runtime pipeline artifacts in target projects
+pipeline/brief.md
+pipeline/design-spec.md
+pipeline/design-review-notes.md
+pipeline/pr-*.md
+pipeline/code-review/
+pipeline/test-report.md
+pipeline/deploy-log.md
+pipeline/hotfix-spec.md
+pipeline/gates/
+pipeline/adr/
