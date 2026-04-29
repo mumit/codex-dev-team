@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-03.schema.json",
+  "title": "Stage 03 Clarification Gate",
+  "type": "object",
+  "required": [
+    "open_questions_count",
+    "answered_questions_count",
+    "scope_changed"
+  ],
+  "properties": {
+    "open_questions_count": { "type": "integer", "minimum": 0 },
+    "answered_questions_count": { "type": "integer", "minimum": 0 },
+    "scope_changed": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

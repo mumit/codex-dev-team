@@ -35,7 +35,17 @@ describe("framework contracts", () => {
   });
 
   it("stage schemas are present for high-value stages", () => {
-    for (const stage of ["stage-01", "stage-02", "stage-05", "stage-07", "stage-08", "stage-09"]) {
+    for (const stage of [
+      "stage-01",
+      "stage-02",
+      "stage-03",
+      "stage-04",
+      "stage-05",
+      "stage-06",
+      "stage-07",
+      "stage-08",
+      "stage-09",
+    ]) {
       const fullPath = path.join(ROOT, "schemas", `${stage}.schema.json`);
       assert.ok(fs.existsSync(fullPath), `${stage} schema should exist`);
       const schema = JSON.parse(fs.readFileSync(fullPath, "utf8"));

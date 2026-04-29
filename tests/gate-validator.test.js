@@ -84,8 +84,8 @@ describe("gate-validator", () => {
 
   it("returns 2 for FAIL gates", () => {
     fs.mkdirSync(gates, { recursive: true });
-    fs.writeFileSync(path.join(gates, "stage-06.json"), JSON.stringify(gate({
-      stage: "stage-06",
+    fs.writeFileSync(path.join(gates, "stage-99.json"), JSON.stringify(gate({
+      stage: "stage-99",
       status: "FAIL",
       agent: "qa",
       blockers: ["test failed"],
@@ -98,8 +98,8 @@ describe("gate-validator", () => {
 
   it("requires retry delta", () => {
     fs.mkdirSync(gates, { recursive: true });
-    fs.writeFileSync(path.join(gates, "stage-06.json"), JSON.stringify(gate({
-      stage: "stage-06",
+    fs.writeFileSync(path.join(gates, "stage-99.json"), JSON.stringify(gate({
+      stage: "stage-99",
       status: "FAIL",
       retry_number: 1,
       this_attempt_differs_by: "",
@@ -121,8 +121,8 @@ describe("gate-validator", () => {
 
   it("sanitizes and truncates log output", () => {
     fs.mkdirSync(gates, { recursive: true });
-    fs.writeFileSync(path.join(gates, "stage-06.json"), JSON.stringify(gate({
-      stage: "stage-06",
+    fs.writeFileSync(path.join(gates, "stage-99.json"), JSON.stringify(gate({
+      stage: "stage-99",
       status: "FAIL",
       blockers: [`\u001b[31m${"x".repeat(700)}\u001b[0m\u0007`],
     })));

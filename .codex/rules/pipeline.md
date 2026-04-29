@@ -28,7 +28,7 @@ locally, in a Codex app worktree, or as delegated cloud tasks.
 
 ## Helper Commands
 
-- `npm run review:derive` derives Stage 5 approval gates from review files.
+- `npm run review:derive` derives Stage 6 approval gates from review files.
 - `npm run security:check -- <changed files>` decides whether security review is required.
 - `npm run runbook:check` verifies `pipeline/runbook.md` before deploy.
 - `npm run validate` runs syntax checks and latest-gate validation.

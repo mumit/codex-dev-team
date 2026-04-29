@@ -37,12 +37,58 @@ const STAGES = {
       adr_count: 0,
     },
   },
-  review: {
-    stage: "stage-05-backend",
+  clarification: {
+    stage: "stage-03",
+    role: "PM",
+    objective: "Resolve open questions from requirements and design before implementation starts.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/brief.md", "pipeline/design-spec.md"],
+    allowedWrites: ["pipeline/clarification-log.md", "pipeline/gates/stage-03.json", "pipeline/context.md"],
+    artifact: "pipeline/clarification-log.md",
+    template: "clarification-template.md",
+    gate: {
+      agent: "pm",
+      open_questions_count: 0,
+      answered_questions_count: 0,
+      scope_changed: false,
+    },
+  },
+  build: {
+    stage: "stage-04",
+    role: "Backend | Frontend | Platform | QA",
+    objective: "Implement the approved design in role-owned workstreams and record local verification.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/brief.md", "pipeline/design-spec.md"],
+    allowedWrites: ["src/backend/", "src/frontend/", "src/infra/", "src/tests/", "pipeline/pr-*.md", "pipeline/build-plan.md", "pipeline/gates/stage-04.json"],
+    artifact: "pipeline/build-plan.md",
+    template: "build-template.md",
+    gate: {
+      agent: "codex-team",
+      workstreams: [],
+      pr_summaries_written: [],
+      local_verification: [],
+    },
+  },
+  "pre-review": {
+    stage: "stage-05",
+    role: "Platform",
+    objective: "Run lint, tests, dependency/license review, and security-trigger checks before peer review.",
+    readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/build-plan.md", "pipeline/pr-*.md"],
+    allowedWrites: ["pipeline/pre-review.md", "pipeline/security-review.md", "pipeline/gates/stage-05.json", "pipeline/context.md"],
+    artifact: "pipeline/pre-review.md",
+    template: "pre-review-template.md",
+    gate: {
+      agent: "platform",
+      lint_passed: false,
+      tests_passed: false,
+      dependency_review_passed: false,
+      security_review_required: false,
+    },
+  },
+  "peer-review": {
+    stage: "stage-06-backend",
     role: "Reviewer",
     objective: "Review peer implementation notes, record findings, and derive deterministic approval gates.",
     readFirst: ["AGENTS.md", ".codex/rules/pipeline.md", ".codex/rules/gates.md", "pipeline/context.md", "pipeline/pr-*.md"],
-    allowedWrites: ["pipeline/code-review/by-<role>.md", "pipeline/gates/stage-05-*.json"],
+    allowedWrites: ["pipeline/code-review/by-<role>.md", "pipeline/gates/stage-06-*.json"],
     artifact: "pipeline/code-review/by-backend.md",
     template: "review-template.md",
     gate: {
@@ -55,6 +101,7 @@ const STAGES = {
       escalated_to_principal: false,
     },
   },
+  review: null,
   qa: {
     stage: "stage-07",
     role: "QA",
@@ -105,6 +152,14 @@ const STAGES = {
     },
   },
 };
+
+function canonicalStageName(name) {
+  return name === "review" ? "peer-review" : name;
+}
+
+function stageNames() {
+  return Object.keys(STAGES).filter((name) => STAGES[name]);
+}
 
 function exists(relativePath) {
   return fs.existsSync(path.join(ROOT, relativePath));
@@ -159,10 +214,11 @@ function draftGate(stageConfig) {
 }
 
 function scaffoldStage(name) {
-  const config = STAGES[name];
+  const canonicalName = canonicalStageName(name);
+  const config = STAGES[canonicalName];
   if (!config) {
     console.error(`Unknown stage: ${name}`);
-    console.error(`Known stages: ${Object.keys(STAGES).join(", ")}`);
+    console.error(`Known stages: ${stageNames().join(", ")}`);
     return 1;
   }
 
@@ -179,15 +235,16 @@ function printList(title, items) {
 }
 
 function promptForStage(name, feature) {
-  const config = STAGES[name];
+  const canonicalName = canonicalStageName(name);
+  const config = STAGES[canonicalName];
   if (!config) {
     console.error(`Unknown stage: ${name}`);
-    console.error(`Known stages: ${Object.keys(STAGES).join(", ")}`);
+    console.error(`Known stages: ${stageNames().join(", ")}`);
     return 1;
   }
 
   console.log(`Role: ${config.role}`);
-  console.log(`Stage: ${config.stage} (${name})`);
+  console.log(`Stage: ${config.stage} (${canonicalName})`);
   console.log(`Track: ${currentTrack()}`);
   if (feature) console.log(`Feature: ${feature}`);
   console.log(`Objective: ${config.objective}`);
@@ -241,7 +298,7 @@ function runDesign(feature) {
 }
 
 function runPipelineReview() {
-  const stageStatus = scaffoldStage("review");
+  const stageStatus = scaffoldStage("peer-review");
   if (stageStatus !== 0) return stageStatus;
   return runNodeScript("approval-derivation.js");
 }
@@ -338,7 +395,7 @@ function usage() {
     "  pipeline-context",
     "  retrospective",
     "  prompt <stage> [feature]",
-    "  stage <requirements|design|review|qa|deploy|retrospective>",
+    "  stage <requirements|design|clarification|build|pre-review|peer-review|qa|deploy|retrospective>",
   ].join("\n"));
   return 1;
 }

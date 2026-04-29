@@ -55,7 +55,7 @@ function readGate(gatePath, area) {
   }
 
   return {
-    stage: `stage-05-${area}`,
+    stage: `stage-06-${area}`,
     status: "FAIL",
     agent: "codex-team",
     track: "full",
@@ -73,7 +73,7 @@ function readGate(gatePath, area) {
 
 function applyVerdict({ area, verdict, reviewer }) {
   fs.mkdirSync(GATES_DIR, { recursive: true });
-  const gatePath = path.join(GATES_DIR, `stage-05-${area}.json`);
+  const gatePath = path.join(GATES_DIR, `stage-06-${area}.json`);
   const gate = readGate(gatePath, area);
 
   gate.approvals = Array.isArray(gate.approvals) ? gate.approvals : [];

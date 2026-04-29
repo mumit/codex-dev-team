@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-06.schema.json",
+  "title": "Stage 06 Peer Review Gate",
+  "type": "object",
+  "required": [
+    "area",
+    "review_shape",
+    "required_approvals",
+    "approvals",
+    "changes_requested",
+    "escalated_to_principal"
+  ],
+  "properties": {
+    "area": {
+      "type": "string",
+      "enum": ["backend", "frontend", "platform", "qa", "security", "deps"]
+    },
+    "review_shape": { "type": "string", "enum": ["scoped", "matrix"] },
+    "required_approvals": { "type": "integer", "minimum": 1 },
+    "approvals": { "type": "array" },
+    "changes_requested": { "type": "array" },
+    "escalated_to_principal": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

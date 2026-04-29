@@ -57,7 +57,10 @@ Schema-backed stage contracts currently exist for:
 
 - `stage-01` requirements
 - `stage-02` design
-- `stage-05-*` review
+- `stage-03` clarification
+- `stage-04` build
+- `stage-05` pre-review
+- `stage-06-*` peer review
 - `stage-07` QA
 - `stage-08` sign-off/deploy
 - `stage-09` retrospective

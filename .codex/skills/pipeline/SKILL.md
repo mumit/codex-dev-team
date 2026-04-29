@@ -87,7 +87,10 @@ npm run pipeline:context
 npm run retrospective
 npm run stage -- requirements
 npm run stage -- design
-npm run stage -- review
+npm run stage -- clarification
+npm run stage -- build
+npm run stage -- pre-review
+npm run stage -- peer-review
 npm run stage -- qa
 npm run stage -- deploy
 npm run stage -- retrospective
@@ -121,7 +124,10 @@ High-value stages have schema-backed required fields:
 
 - Stage 1: requirements completeness and acceptance criteria count
 - Stage 2: architecture and PM approval
-- Stage 5: review approvals and changes requested
+- Stage 3: clarification closure and scope changes
+- Stage 4: build workstreams and local verification
+- Stage 5: pre-review checks and security trigger
+- Stage 6: review approvals and changes requested
 - Stage 7: QA result and acceptance mapping
 - Stage 8: sign-off, deploy intent, and runbook reference
 - Stage 9: retrospective severity and promoted lessons

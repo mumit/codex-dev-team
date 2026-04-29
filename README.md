@@ -84,6 +84,10 @@ npm run retrospective
 npm run prompt -- requirements "Add authentication"
 npm run stage -- requirements
 npm run stage -- design
+npm run stage -- clarification
+npm run stage -- build
+npm run stage -- pre-review
+npm run stage -- peer-review
 npm run stage -- qa
 npm run review:derive
 npm run security:check -- src/backend/auth/session.js

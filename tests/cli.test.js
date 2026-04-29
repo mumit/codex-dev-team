@@ -173,7 +173,7 @@ describe("codex-team CLI", () => {
 
     assert.equal(result.status, 0);
     assert.ok(fs.existsSync(path.join(target, "pipeline", "code-review", "by-backend.md")));
-    assert.ok(fs.existsSync(path.join(target, "pipeline", "gates", "stage-05-backend.json")));
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "gates", "stage-06-backend.json")));
   });
 
   it("retrospective scaffolds retrospective artifacts", () => {
@@ -222,6 +222,42 @@ describe("codex-team CLI", () => {
     assert.ok(fs.existsSync(path.join(target, "pipeline", "design-spec.md")));
     const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-02.json"), "utf8"));
     assert.equal(gate.arch_approved, false);
+  });
+
+  it("stage clarification scaffolds clarification log and draft gate", () => {
+    const result = run("stage", ["clarification"]);
+
+    assert.equal(result.status, 0);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "clarification-log.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-03.json"), "utf8"));
+    assert.equal(gate.open_questions_count, 0);
+  });
+
+  it("stage build scaffolds build plan and draft gate", () => {
+    const result = run("stage", ["build"]);
+
+    assert.equal(result.status, 0);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "build-plan.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), "utf8"));
+    assert.deepEqual(gate.workstreams, []);
+  });
+
+  it("stage pre-review scaffolds checks and draft gate", () => {
+    const result = run("stage", ["pre-review"]);
+
+    assert.equal(result.status, 0);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "pre-review.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-05.json"), "utf8"));
+    assert.equal(gate.lint_passed, false);
+  });
+
+  it("stage peer-review scaffolds review notes and draft gate", () => {
+    const result = run("stage", ["peer-review"]);
+
+    assert.equal(result.status, 0);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "code-review", "by-backend.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-06-backend.json"), "utf8"));
+    assert.equal(gate.area, "backend");
   });
 
   it("stage qa scaffolds test report and draft gate", () => {

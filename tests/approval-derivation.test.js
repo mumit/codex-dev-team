@@ -44,13 +44,13 @@ describe("approval derivation", () => {
 
     const output = run();
     assert.match(output, /frontend -> APPROVED on backend/);
-    assert.deepEqual(gate("stage-05-backend.json").approvals, ["frontend"]);
+    assert.deepEqual(gate("stage-06-backend.json").approvals, ["frontend"]);
   });
 
   it("honors scoped gates with one required approval", () => {
     fs.mkdirSync(gatesDir, { recursive: true });
-    fs.writeFileSync(path.join(gatesDir, "stage-05-backend.json"), JSON.stringify({
-      stage: "stage-05-backend",
+    fs.writeFileSync(path.join(gatesDir, "stage-06-backend.json"), JSON.stringify({
+      stage: "stage-06-backend",
       status: "FAIL",
       agent: "codex-team",
       track: "quick",
@@ -71,7 +71,7 @@ describe("approval derivation", () => {
     ].join("\n"));
 
     run();
-    assert.equal(gate("stage-05-backend.json").status, "PASS");
+    assert.equal(gate("stage-06-backend.json").status, "PASS");
   });
 
   it("records changes requested and removes prior approval", () => {
@@ -89,7 +89,7 @@ describe("approval derivation", () => {
     ].join("\n"));
     run();
 
-    const result = gate("stage-05-frontend.json");
+    const result = gate("stage-06-frontend.json");
     assert.deepEqual(result.approvals, []);
     assert.equal(result.changes_requested[0].reviewer, "platform");
   });

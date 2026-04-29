@@ -8,6 +8,9 @@ const ROOT = process.cwd();
 const ARTIFACTS = [
   "pipeline/brief.md",
   "pipeline/design-spec.md",
+  "pipeline/clarification-log.md",
+  "pipeline/build-plan.md",
+  "pipeline/pre-review.md",
   "pipeline/test-report.md",
   "pipeline/runbook.md",
   "pipeline/retrospective.md",

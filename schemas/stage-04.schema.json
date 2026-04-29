@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/codex-dev-team/stage-04.schema.json",
+  "title": "Stage 04 Build Gate",
+  "type": "object",
+  "required": [
+    "workstreams",
+    "pr_summaries_written",
+    "local_verification"
+  ],
+  "properties": {
+    "workstreams": { "type": "array" },
+    "pr_summaries_written": { "type": "array" },
+    "local_verification": { "type": "array" }
+  },
+  "additionalProperties": true
+}

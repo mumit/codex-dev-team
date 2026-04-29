@@ -1,26 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.local/codex-dev-team/stage-05.schema.json",
-  "title": "Stage 05 Review Gate",
+  "title": "Stage 05 Pre-review Gate",
   "type": "object",
   "required": [
-    "area",
-    "review_shape",
-    "required_approvals",
-    "approvals",
-    "changes_requested",
-    "escalated_to_principal"
+    "lint_passed",
+    "tests_passed",
+    "dependency_review_passed",
+    "security_review_required"
   ],
   "properties": {
-    "area": {
-      "type": "string",
-      "enum": ["backend", "frontend", "platform", "qa", "security", "deps"]
-    },
-    "review_shape": { "type": "string", "enum": ["scoped", "matrix"] },
-    "required_approvals": { "type": "integer", "minimum": 1 },
-    "approvals": { "type": "array" },
-    "changes_requested": { "type": "array" },
-    "escalated_to_principal": { "type": "boolean" }
+    "lint_passed": { "type": "boolean" },
+    "tests_passed": { "type": "boolean" },
+    "dependency_review_passed": { "type": "boolean" },
+    "security_review_required": { "type": "boolean" },
+    "security_review_gate": { "type": "string" }
   },
   "additionalProperties": true
 }
