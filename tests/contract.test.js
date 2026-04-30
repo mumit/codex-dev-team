@@ -105,7 +105,18 @@ describe("framework contracts", () => {
   });
 
   it("core skills exist and have frontmatter", () => {
-    for (const name of ["pipeline", "implement", "pre-pr-review", "audit", "quick", "hotfix"]) {
+    for (const name of [
+      "pipeline",
+      "implement",
+      "pre-pr-review",
+      "audit",
+      "quick",
+      "hotfix",
+      "api-conventions",
+      "code-conventions",
+      "review-rubric",
+      "security-checklist",
+    ]) {
       const skill = read(`.codex/skills/${name}/SKILL.md`);
       assert.ok(skill.startsWith("---\n"), `${name} skill should start with frontmatter`);
       assert.match(skill, new RegExp(`name: ${name}`));
@@ -117,6 +128,21 @@ describe("framework contracts", () => {
     for (const skill of ["pipeline", "implement", "audit"]) {
       const body = read(`.codex/skills/${skill}/SKILL.md`);
       assert.match(body, /lessons-learned\.md/, `${skill} should read lessons`);
+    }
+  });
+
+  it("Claude rule parity docs exist", () => {
+    for (const rule of [
+      "coding-principles",
+      "compaction",
+      "escalation",
+      "gates",
+      "orchestrator",
+      "pipeline",
+      "retrospective",
+    ]) {
+      const body = read(`.codex/rules/${rule}.md`);
+      assert.match(body, /^# /, `${rule} should have a title`);
     }
   });
 
@@ -162,7 +188,8 @@ describe("framework contracts", () => {
       assert.match(parity, new RegExp(`\\\`${command}\\\``));
     }
     assert.match(parity, /## v1\.0 Blockers/);
-    assert.match(parity, /Gap before v1\.0/);
+    assert.doesNotMatch(parity, /Gap before v1\.0/);
+    assert.doesNotMatch(parity, /\| Partial \|/);
     assert.match(parity, /Codex Improvements Beyond Claude/);
   });
 

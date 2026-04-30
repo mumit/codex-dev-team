@@ -1134,6 +1134,14 @@ function doctor() {
     ["docs/parity/claude-dev-team-parity.md", exists("docs/parity/claude-dev-team-parity.md")],
   ];
 
+  for (const rule of ["coding-principles", "compaction", "escalation", "gates", "orchestrator", "pipeline", "retrospective"]) {
+    checks.push([`.codex/rules/${rule}.md`, exists(`.codex/rules/${rule}.md`)]);
+  }
+
+  for (const skill of ["api-conventions", "code-conventions", "implement", "pre-pr-review", "review-rubric", "security-checklist"]) {
+    checks.push([`.codex/skills/${skill}/SKILL.md`, exists(`.codex/skills/${skill}/SKILL.md`)]);
+  }
+
   for (const stage of ["01", "02", "03", "04", "05", "06", "07", "08", "09"]) {
     checks.push([`schemas/stage-${stage}.schema.json`, exists(`schemas/stage-${stage}.schema.json`)]);
   }

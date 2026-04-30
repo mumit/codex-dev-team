@@ -15,8 +15,8 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 | Roles | On par | PM, Principal, Backend, Frontend, Platform, QA, Reviewer, and Security prompts exist. |
 | Deployment adapters | Better | Codex has explicit adapter docs for Docker Compose, Kubernetes, Terraform, and custom scripts. |
 | Status/roadmap automation | Better | Codex has JSON status, next, and roadmap outputs. |
-| Rules | Partial | Several Claude rule docs are not yet represented as dedicated Codex rules. |
-| Skills | Partial | General implementation/review skills exist, but convention/security/rubric skills are not all ported. |
+| Rules | On par | Claude rule set has Codex-native equivalents under `.codex/rules/`. |
+| Skills | On par | Claude convention, review, security, implementation, and pre-PR skills are represented under `.codex/skills/`. |
 
 ## Command Parity
 
@@ -52,11 +52,11 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 |---|---|---|
 | `pipeline.md` | `.codex/rules/pipeline.md` | Ported |
 | `gates.md` | `.codex/rules/gates.md` plus schemas | Ported |
-| `coding-principles.md` | Partial through `AGENTS.md`, role prompts, and skills | Gap before v1.0 |
-| `compaction.md` | Not represented as a dedicated Codex rule | Gap before v1.0 |
-| `escalation.md` | Partial through `ESCALATE` gates, `principal-ruling`, and context signals | Gap before v1.0 |
-| `orchestrator.md` | Partial through `scripts/codex-team.js` and `npm run next` | Gap before v1.0 |
-| `retrospective.md` | Partial through retrospective stage and lessons helper | Gap before v1.0 |
+| `coding-principles.md` | `.codex/rules/coding-principles.md` | Ported |
+| `compaction.md` | `.codex/rules/compaction.md` | Ported |
+| `escalation.md` | `.codex/rules/escalation.md` plus `ESCALATE` gates | Ported |
+| `orchestrator.md` | `.codex/rules/orchestrator.md`, `scripts/codex-team.js`, and `npm run next` | Ported |
+| `retrospective.md` | `.codex/rules/retrospective.md`, retrospective stage, and lessons helper | Ported |
 
 ## Skill Parity
 
@@ -64,10 +64,10 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 |---|---|---|
 | `implement` | `.codex/skills/implement/SKILL.md` | Ported |
 | `pre-pr-review` | `.codex/skills/pre-pr-review/SKILL.md` | Ported |
-| `api-conventions` | Role prompts and AGENTS coverage only | Gap before v1.0 |
-| `code-conventions` | Role prompts and AGENTS coverage only | Gap before v1.0 |
-| `review-rubric` | Reviewer role and pre-pr-review coverage only | Gap before v1.0 |
-| `security-checklist` | Security role and `security:check` coverage only | Gap before v1.0 |
+| `api-conventions` | `.codex/skills/api-conventions/SKILL.md` | Ported |
+| `code-conventions` | `.codex/skills/code-conventions/SKILL.md` | Ported |
+| `review-rubric` | `.codex/skills/review-rubric/SKILL.md` | Ported |
+| `security-checklist` | `.codex/skills/security-checklist/SKILL.md` plus `security:check` | Ported |
 
 ## Codex Improvements Beyond Claude
 
@@ -80,7 +80,5 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 
 ## v1.0 Blockers
 
-- Port or replace dedicated rule docs for coding principles, compaction,
-  escalation, orchestrator behavior, and retrospective behavior.
-- Port or replace convention/rubric/security checklist skills.
-- Add a final parity check that reports no `Gap before v1.0` rows.
+- None. `npm run parity:check` now fails if any command row, required rule,
+  required skill, partial area, or v1.0 gap is present.
