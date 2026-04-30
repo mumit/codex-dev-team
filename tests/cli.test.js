@@ -168,8 +168,8 @@ describe("codex-team CLI", () => {
     assert.equal(result.status, 0);
     const payload = JSON.parse(result.stdout);
     assert.equal(payload.track, "dep-update");
-    assert.equal(payload.stage, "stage-06-backend");
-    assert.equal(payload.command, "CODEX_TEAM_TRACK=dep-update npm run stage -- peer-review");
+    assert.equal(payload.stage, "stage-06-deps");
+    assert.equal(payload.command, "npm run prompt -- peer-review");
   });
 
   it("next keeps hotfix on its expedited track", () => {
@@ -355,7 +355,11 @@ describe("codex-team CLI", () => {
     assert.equal(result.status, 0);
     assert.match(result.stdout, /Track: dep-update/);
     const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), "utf8"));
+    const reviewGate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-06-deps.json"), "utf8"));
     assert.equal(gate.track, "dep-update");
+    assert.equal(reviewGate.track, "dep-update");
+    assert.equal(reviewGate.review_shape, "scoped");
+    assert.equal(reviewGate.required_approvals, 1);
     assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /DEP-UPDATE: Upgrade lodash/);
   });
 
@@ -445,6 +449,19 @@ describe("codex-team CLI", () => {
     assert.equal(result.status, 0);
     assert.ok(fs.existsSync(path.join(target, "pipeline", "code-review", "by-backend.md")));
     assert.ok(fs.existsSync(path.join(target, "pipeline", "gates", "stage-06-backend.json")));
+  });
+
+  it("pipeline-review precreates quick scoped review gates from PR files", () => {
+    run("quick", ["Fix empty state copy"]);
+    fs.writeFileSync(path.join(target, "pipeline", "pr-frontend.md"), "# Frontend PR\n");
+
+    const result = run("pipeline-review");
+
+    assert.equal(result.status, 0);
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-06-frontend.json"), "utf8"));
+    assert.equal(gate.track, "quick");
+    assert.equal(gate.review_shape, "scoped");
+    assert.equal(gate.required_approvals, 1);
   });
 
   it("retrospective scaffolds retrospective artifacts", () => {

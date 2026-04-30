@@ -46,6 +46,34 @@ function requirementsGate(overrides = {}) {
   });
 }
 
+function reviewGate(overrides = {}) {
+  return gate({
+    stage: "stage-06-backend",
+    agent: "codex-team",
+    area: "backend",
+    review_shape: "matrix",
+    required_approvals: 2,
+    approvals: ["frontend", "platform"],
+    changes_requested: [],
+    escalated_to_principal: false,
+    ...overrides,
+  });
+}
+
+function qaGate(overrides = {}) {
+  return gate({
+    stage: "stage-07",
+    agent: "qa",
+    all_acceptance_criteria_met: true,
+    tests_total: 1,
+    tests_passed: 1,
+    tests_failed: 0,
+    failing_tests: [],
+    criterion_to_test_mapping_is_one_to_one: true,
+    ...overrides,
+  });
+}
+
 describe("gate-validator", () => {
   let tmp;
   let gates;
@@ -161,5 +189,56 @@ describe("gate-validator", () => {
     const result = run(tmp, ["--all"]);
     assert.equal(result.status, 2);
     assert.match(result.stdout, /manual follow-up needed/);
+  });
+
+  it("enforces scoped review gates for quick and dependency tracks", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-06-backend.json"), JSON.stringify(reviewGate({
+      track: "quick",
+      required_approvals: 2,
+    })));
+
+    const result = run(tmp, ["--all"]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /quick review gates must require exactly 1 approval/);
+  });
+
+  it("enforces regression checks for regression-only tracks on PASS", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-07.json"), JSON.stringify(qaGate({
+      track: "dep-update",
+    })));
+
+    const result = run(tmp, ["--all"]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /dep-update Stage 7 PASS gates require regression_check=PASS/);
+  });
+
+  it("rejects stages skipped by nano track", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-01.json"), JSON.stringify(requirementsGate({
+      track: "nano",
+    })));
+
+    const result = run(tmp, ["--all"]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /nano track must not write stage-01/);
+  });
+
+  it("requires hotfix pre-review PASS gates to record the skipped automated check", () => {
+    fs.mkdirSync(gates, { recursive: true });
+    fs.writeFileSync(path.join(gates, "stage-05.json"), JSON.stringify(gate({
+      stage: "stage-05",
+      agent: "platform",
+      track: "hotfix",
+      lint_passed: false,
+      tests_passed: false,
+      dependency_review_passed: false,
+      security_review_required: false,
+    })));
+
+    const result = run(tmp, ["--all"]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /hotfix Stage 5 PASS gates require stage_4_5a_skipped=true/);
   });
 });

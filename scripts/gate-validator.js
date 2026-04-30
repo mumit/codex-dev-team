@@ -134,6 +134,36 @@ function stageSchemaPath(stage) {
   return fs.existsSync(candidate) ? candidate : null;
 }
 
+function validateTrackRules(gate) {
+  const errors = [];
+  const stage = typeof gate.stage === "string" ? gate.stage : "";
+
+  if (gate.track === "nano" && /^stage-(01|02|03|05|08|09)/.test(stage)) {
+    errors.push(`nano track must not write ${stage}`);
+  }
+
+  if ((gate.track === "quick" || gate.track === "dep-update") && stage.startsWith("stage-06")) {
+    if (gate.review_shape !== "scoped") errors.push(`${gate.track} review gates must use review_shape=scoped`);
+    if (gate.required_approvals !== 1) errors.push(`${gate.track} review gates must require exactly 1 approval`);
+  }
+
+  if (["nano", "config-only", "dep-update"].includes(gate.track) &&
+      stage === "stage-07" &&
+      gate.status === "PASS" &&
+      gate.regression_check !== "PASS") {
+    errors.push(`${gate.track} Stage 7 PASS gates require regression_check=PASS`);
+  }
+
+  if (gate.track === "hotfix" &&
+      stage === "stage-05" &&
+      gate.status === "PASS" &&
+      gate.stage_4_5a_skipped !== true) {
+    errors.push("hotfix Stage 5 PASS gates require stage_4_5a_skipped=true");
+  }
+
+  return errors;
+}
+
 function validateGate(gate) {
   const baseSchema = readJson(SCHEMA_PATH);
   const errors = validateAgainstSchema(gate, baseSchema, "base");
@@ -144,6 +174,7 @@ function validateGate(gate) {
     errors.push(...validateAgainstSchema(gate, stageSchema, path.basename(stagePath)));
   }
 
+  errors.push(...validateTrackRules(gate));
   return errors;
 }
 
@@ -225,4 +256,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { validateAgainstSchema, validateGate, sanitize, main, validateAllGates };
+module.exports = { validateAgainstSchema, validateGate, validateTrackRules, sanitize, main, validateAllGates };

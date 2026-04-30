@@ -188,6 +188,15 @@ function orderedStageNamesForTrack(track) {
   return stagesByTrack[track] || stagesByTrack.full;
 }
 
+function stageConfigForTrackStep(track, name) {
+  const config = STAGES[name];
+  if (!config) return null;
+  if (name === "peer-review" && track === "dep-update") {
+    return { ...config, stage: "stage-06-deps" };
+  }
+  return config;
+}
+
 function roleNamesForConfig(config) {
   return config.role
     .split("|")
@@ -403,6 +412,45 @@ function readGate(stage) {
   }
 }
 
+function scopedReviewGate(area, track) {
+  return {
+    stage: `stage-06-${area}`,
+    status: "FAIL",
+    agent: "codex-team",
+    track,
+    timestamp: new Date().toISOString(),
+    blockers: ["Scoped review pending"],
+    warnings: [],
+    area,
+    review_shape: "scoped",
+    required_approvals: 1,
+    approvals: [],
+    changes_requested: [],
+    escalated_to_principal: false,
+  };
+}
+
+function writeScopedReviewGate(area, track) {
+  fs.mkdirSync(path.join(ROOT, "pipeline", "gates"), { recursive: true });
+  const gatePath = path.join(ROOT, "pipeline", "gates", `stage-06-${area}.json`);
+  if (!fs.existsSync(gatePath)) {
+    fs.writeFileSync(gatePath, `${JSON.stringify(scopedReviewGate(area, track), null, 2)}\n`);
+    return true;
+  }
+  return false;
+}
+
+function reviewAreasFromPrFiles() {
+  const pipelineDir = path.join(ROOT, "pipeline");
+  if (!fs.existsSync(pipelineDir)) return [];
+  return fs.readdirSync(pipelineDir)
+    .map((file) => file.match(/^pr-([a-z0-9-]+)\.md$/))
+    .filter(Boolean)
+    .map((match) => match[1])
+    .filter((area) => ["backend", "frontend", "platform", "qa", "security", "deps"].includes(area))
+    .sort();
+}
+
 function gatesDir() {
   return path.join(ROOT, "pipeline", "gates");
 }
@@ -446,7 +494,7 @@ function stageCommandForTrack(track, name) {
 function nextPayload() {
   const track = activeTrack();
   for (const name of orderedStageNamesForTrack(track)) {
-    const config = STAGES[name];
+    const config = stageConfigForTrackStep(track, name);
     const gate = readGate(config.stage);
 
     if (!gate.exists) {
@@ -585,6 +633,16 @@ function scaffoldPipeline(feature) {
 }
 
 function runPipelineReview() {
+  const track = activeTrack();
+  if (track === "dep-update") {
+    writeScopedReviewGate("deps", track);
+    return runNodeScript("approval-derivation.js");
+  }
+  if (track === "quick") {
+    for (const area of reviewAreasFromPrFiles()) writeScopedReviewGate(area, track);
+    return runNodeScript("approval-derivation.js");
+  }
+
   const stageStatus = scaffoldStage("peer-review");
   if (stageStatus !== 0) return stageStatus;
   return runNodeScript("approval-derivation.js");
@@ -684,6 +742,10 @@ function runTrack(track, description) {
       console.log("Track: hotfix");
       console.log("Next: complete pipeline/hotfix-spec.md, then run npm run prompt -- build.");
       return 0;
+    }
+
+    if (track === "dep-update") {
+      writeScopedReviewGate("deps", track);
     }
 
     const stageStatus = scaffoldStage("build");

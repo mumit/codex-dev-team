@@ -26,6 +26,51 @@ locally, in a Codex app worktree, or as delegated cloud tasks.
 8. **Sign-off and Deploy** - PM sign-off, then deployment when requested.
 9. **Retrospective** - lessons are added to `pipeline/lessons-learned.md`.
 
+## Track Contracts
+
+`npm run next` is track-aware. It infers the active track from
+`CODEX_TEAM_TRACK`, existing gate files, or `pipeline/context.md`, then advances
+only through the stages that track uses.
+
+### full
+
+Full track uses every stage in order. Stage 6 normally uses matrix review, but
+pre-existing scoped gates remain valid when a run intentionally narrows review
+area and approval count.
+
+### quick
+
+Quick track uses Requirements -> Build -> Peer Review -> QA -> Deploy ->
+Retrospective. Stage 6 review gates must be scoped reviews with
+`required_approvals: 1`. `npm run pipeline:review` precreates quick scoped
+review gates from existing `pipeline/pr-<area>.md` files.
+
+### nano
+
+Nano track uses Build -> QA only. It must not write requirement, design,
+clarification, pre-review, deploy, or retrospective gates. A PASS QA gate must
+record `regression_check: "PASS"`.
+
+### config-only
+
+Config-only track uses Build -> Pre-review -> QA -> Deploy. It records
+`CONFIG-ONLY scope` in `pipeline/context.md`. A PASS QA gate must record
+`regression_check: "PASS"`.
+
+### dep-update
+
+Dependency-update track uses Build -> Peer Review -> QA -> Deploy. The review
+area is `deps`, with a precreated `pipeline/gates/stage-06-deps.json` scoped
+review gate requiring one approval. A PASS QA gate must record
+`regression_check: "PASS"`.
+
+### hotfix
+
+Hotfix track uses Build -> Pre-review -> Peer Review -> QA -> Deploy ->
+Retrospective. It writes `pipeline/hotfix-spec.md`, records
+`STAGE-4.5A-SKIP: hotfix track`, and still runs the conditional security check.
+A PASS Stage 5 gate must record `stage_4_5a_skipped: true`.
+
 ## Helper Commands
 
 - `npm run quick -- "<change>"` starts a quick-track run and stamps quick gates.
