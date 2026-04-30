@@ -124,4 +124,8 @@ function main() {
   console.log(`Codex Dev Team installed into ${TARGET}`);
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { PACKAGE_SCRIPTS };

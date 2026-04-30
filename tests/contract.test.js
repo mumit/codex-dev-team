@@ -2,6 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const { PACKAGE_SCRIPTS } = require("../scripts/bootstrap");
 const { STAGES, TRACKS, draftGateObject, orderedStageNames } = require("../scripts/codex-team");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -160,5 +161,12 @@ describe("framework contracts", () => {
     assert.match(readme, /node scripts\/codex-team\.js help/);
     assert.match(agents, /Bootstrap only installs npm shims when the target already has `package\.json`/);
     assert.match(agents, /node scripts\/codex-team\.js/);
+  });
+
+  it("bootstrap package shims stay aligned with root npm scripts", () => {
+    const pkg = JSON.parse(read("package.json"));
+    for (const script of Object.keys(PACKAGE_SCRIPTS)) {
+      assert.ok(pkg.scripts[script], `root package should include ${script}`);
+    }
   });
 });
