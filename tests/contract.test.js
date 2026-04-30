@@ -151,4 +151,14 @@ describe("framework contracts", () => {
       assert.match(agents, new RegExp(command.replaceAll(" ", "\\s+")));
     }
   });
+
+  it("documents non-Node bootstrap behavior", () => {
+    const readme = read("README.md");
+    const agents = read("AGENTS.md");
+
+    assert.match(readme, /no `package\.json` is created/);
+    assert.match(readme, /node scripts\/codex-team\.js help/);
+    assert.match(agents, /Bootstrap only installs npm shims when the target already has `package\.json`/);
+    assert.match(agents, /node scripts\/codex-team\.js/);
+  });
 });
