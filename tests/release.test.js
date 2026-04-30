@@ -14,8 +14,32 @@ describe("release helper", () => {
   beforeEach(() => {
     target = fs.mkdtempSync(path.join(os.tmpdir(), "codex-release-"));
     fs.mkdirSync(path.join(target, ".codex"), { recursive: true });
+    fs.mkdirSync(path.join(target, ".codex", "rules"), { recursive: true });
+    for (const rule of [
+      "coding-principles",
+      "compaction",
+      "escalation",
+      "gates",
+      "orchestrator",
+      "pipeline",
+      "retrospective",
+    ]) {
+      fs.writeFileSync(path.join(target, ".codex", "rules", `${rule}.md`), `# ${rule}\n`);
+    }
+    for (const skill of [
+      "api-conventions",
+      "code-conventions",
+      "implement",
+      "pre-pr-review",
+      "review-rubric",
+      "security-checklist",
+    ]) {
+      fs.mkdirSync(path.join(target, ".codex", "skills", skill), { recursive: true });
+      fs.writeFileSync(path.join(target, ".codex", "skills", skill, "SKILL.md"), `---\nname: ${skill}\ndescription: test\n---\n`);
+    }
     fs.mkdirSync(path.join(target, "examples", "tiny-app"), { recursive: true });
     fs.mkdirSync(path.join(target, ".github", "workflows"), { recursive: true });
+    fs.mkdirSync(path.join(target, "docs", "parity"), { recursive: true });
     fs.mkdirSync(path.join(target, "scripts"), { recursive: true });
     fs.writeFileSync(path.join(target, "VERSION"), "1.2.3\n");
     fs.writeFileSync(path.join(target, "README.md"), "# Test\n");
@@ -24,6 +48,11 @@ describe("release helper", () => {
     fs.writeFileSync(path.join(target, ".github", "workflows", "test.yml"), "name: test\n");
     fs.writeFileSync(path.join(target, "scripts", "codex-team.js"), "");
     fs.writeFileSync(path.join(target, "scripts", "gate-validator.js"), "");
+    fs.copyFileSync(path.join(ROOT, "scripts", "parity-check.js"), path.join(target, "scripts", "parity-check.js"));
+    fs.copyFileSync(
+      path.join(ROOT, "docs", "parity", "claude-dev-team-parity.md"),
+      path.join(target, "docs", "parity", "claude-dev-team-parity.md"),
+    );
     fs.writeFileSync(path.join(target, "examples", "tiny-app", "package.json"), "{}");
     fs.writeFileSync(path.join(target, "package.json"), JSON.stringify({
       version: "1.2.3",

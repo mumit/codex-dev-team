@@ -60,9 +60,22 @@ function releaseChecks() {
     ".github/workflows/test.yml",
     "scripts/codex-team.js",
     "scripts/gate-validator.js",
+    "scripts/parity-check.js",
+    "docs/parity/claude-dev-team-parity.md",
     "examples/tiny-app/package.json",
   ]) {
     if (!exists(file)) errors.push(`missing release file: ${file}`);
+  }
+
+  if (exists("scripts/parity-check.js")) {
+    const parity = spawnSync(process.execPath, ["scripts/parity-check.js"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    if (parity.status !== 0) {
+      const output = [parity.stderr, parity.stdout].filter(Boolean).join("\n").trim();
+      errors.push(`parity check failed${output ? `: ${output}` : ""}`);
+    }
   }
 
   if (errors.length > 0) {
@@ -100,8 +113,11 @@ function writeNotes(fromRef) {
     "",
     "- npm run lint",
     "- npm test",
+    "- npm run test:coverage",
     "- npm run validate",
     "- npm run doctor",
+    "- npm run parity:check",
+    "- npm run release:check",
     "",
     "## Commits",
     "",

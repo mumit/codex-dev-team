@@ -1,6 +1,6 @@
 {
   "name": "codex-dev-team",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": true,
   "description": "A Codex-native software development team framework with gates, skills, audits, and review workflows",
   "scripts": {

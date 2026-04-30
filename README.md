@@ -73,9 +73,10 @@ examples/
 
 ## Status
 
-`v0.2.0` adds stage-specific gate schemas, the `codex-team` CLI, CI, richer
-skills, and dogfood install coverage. It is still local-only by design until
-you decide to publish a remote.
+`v1.0.0` is at feature parity with the local `claude-dev-team` framework and
+adds Codex-native CLI automation, JSON status/roadmap outputs, deployment
+adapters, strict parity checks, and dogfood install coverage. It remains
+local-only by design until you decide to publish a remote.
 
 ## CLI
 
