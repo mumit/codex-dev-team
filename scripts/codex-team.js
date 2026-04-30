@@ -176,6 +176,18 @@ function orderedStageNames() {
   ];
 }
 
+function orderedStageNamesForTrack(track) {
+  const stagesByTrack = {
+    full: orderedStageNames(),
+    quick: ["requirements", "build", "peer-review", "qa", "deploy", "retrospective"],
+    nano: ["build", "qa"],
+    "config-only": ["build", "pre-review", "qa", "deploy"],
+    "dep-update": ["build", "peer-review", "qa", "deploy"],
+    hotfix: ["build", "pre-review", "peer-review", "qa", "deploy", "retrospective"],
+  };
+  return stagesByTrack[track] || stagesByTrack.full;
+}
+
 function roleNamesForConfig(config) {
   return config.role
     .split("|")
@@ -391,8 +403,49 @@ function readGate(stage) {
   }
 }
 
+function gatesDir() {
+  return path.join(ROOT, "pipeline", "gates");
+}
+
+function readAllGates() {
+  const dir = gatesDir();
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((file) => file.endsWith(".json"))
+    .sort()
+    .map((file) => readGate(file.replace(/\.json$/, "")))
+    .filter((result) => result.exists)
+    .map((result) => result.gate);
+}
+
+function activeTrack() {
+  const envTrack = currentTrack();
+  if (TRACKS.includes(envTrack) && envTrack !== "full") return envTrack;
+
+  const gates = readAllGates();
+  const nonFullGate = gates.find((gate) => TRACKS.includes(gate.track) && gate.track !== "full");
+  if (nonFullGate) return nonFullGate.track;
+
+  const contextPath = path.join(ROOT, "pipeline", "context.md");
+  if (fs.existsSync(contextPath)) {
+    const context = fs.readFileSync(contextPath, "utf8");
+    for (const track of TRACKS.filter((name) => name !== "full")) {
+      if (context.includes(`TRACK: ${track}`)) return track;
+    }
+  }
+
+  return "full";
+}
+
+function stageCommandForTrack(track, name) {
+  return track === "full"
+    ? `npm run stage -- ${name}`
+    : `CODEX_TEAM_TRACK=${track} npm run stage -- ${name}`;
+}
+
 function nextPayload() {
-  for (const name of orderedStageNames()) {
+  const track = activeTrack();
+  for (const name of orderedStageNamesForTrack(track)) {
     const config = STAGES[name];
     const gate = readGate(config.stage);
 
@@ -403,8 +456,9 @@ function nextPayload() {
         stage: config.stage,
         name,
         role: config.role,
+        track,
         reason: "gate-missing",
-        command: `npm run stage -- ${name}`,
+        command: stageCommandForTrack(track, name),
       };
     }
 
@@ -415,6 +469,7 @@ function nextPayload() {
         stage: config.stage,
         name,
         role: config.role,
+        track,
         reason: "gate-invalid",
         command: "npm run validate",
       };
@@ -427,6 +482,7 @@ function nextPayload() {
         stage: config.stage,
         name,
         role: config.role,
+        track,
         reason: "gate-escalated",
         command: `npm run prompt -- ${name}`,
       };
@@ -439,6 +495,7 @@ function nextPayload() {
         stage: config.stage,
         name,
         role: config.role,
+        track,
         reason: `gate-${String(gate.gate.status || "unknown").toLowerCase()}`,
         command: `npm run prompt -- ${name}`,
       };
@@ -451,6 +508,7 @@ function nextPayload() {
     stage: null,
     name: null,
     role: null,
+    track,
     reason: "all-gates-pass",
     command: "npm run summary",
   };
@@ -473,6 +531,7 @@ function printNext(args = []) {
   console.log("==================");
   console.log(`Stage: ${payload.stage} (${payload.name})`);
   console.log(`Role: ${payload.role}`);
+  console.log(`Track: ${payload.track}`);
   console.log(`Reason: ${payload.reason}`);
   console.log(`Action: ${payload.action}`);
   console.log(`Command: ${payload.command}`);
@@ -955,7 +1014,9 @@ module.exports = {
   TRACKS,
   canonicalStageName,
   draftGateObject,
+  orderedStageNamesForTrack,
   orderedStageNames,
+  activeTrack,
   stageNameFromInput,
   stageNames,
 };

@@ -139,6 +139,8 @@ prompt commands to stamp that track into generated gates.
 `npm run status` includes gate readiness, artifact presence, audit state, and
 decision-flow signals from `pipeline/context.md`, including open PM questions,
 principal ruling requests, resume notes, and ADR/key-decision entries.
+`npm run next` is track-aware: alternate tracks such as quick, nano,
+config-only, dep-update, and hotfix advance only through the stages they use.
 
 ## Deployment Adapters
 

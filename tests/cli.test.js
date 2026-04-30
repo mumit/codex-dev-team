@@ -120,6 +120,72 @@ describe("codex-team CLI", () => {
     assert.equal(payload.action, "complete-stage");
     assert.equal(payload.stage, "stage-01");
     assert.equal(payload.command, "npm run prompt -- requirements");
+    assert.equal(payload.track, "full");
+  });
+
+  it("next honors quick-track stage order", () => {
+    run("quick", ["Fix empty state copy"]);
+    const requirementsGate = path.join(target, "pipeline", "gates", "stage-01.json");
+    const gate = JSON.parse(fs.readFileSync(requirementsGate, "utf8"));
+    gate.status = "PASS";
+    gate.required_sections_complete = true;
+    fs.writeFileSync(requirementsGate, `${JSON.stringify(gate, null, 2)}\n`);
+
+    const result = run("next");
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Stage: stage-04 \(build\)/);
+    assert.match(result.stdout, /Track: quick/);
+    assert.match(result.stdout, /Command: CODEX_TEAM_TRACK=quick npm run stage -- build/);
+  });
+
+  it("next skips full-track ceremonies for nano", () => {
+    run("nano", ["Fix README typo"]);
+    const buildGate = path.join(target, "pipeline", "gates", "stage-04.json");
+    const gate = JSON.parse(fs.readFileSync(buildGate, "utf8"));
+    gate.status = "PASS";
+    fs.writeFileSync(buildGate, `${JSON.stringify(gate, null, 2)}\n`);
+
+    const result = run("next", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.track, "nano");
+    assert.equal(payload.stage, "stage-07");
+    assert.equal(payload.name, "qa");
+    assert.equal(payload.command, "CODEX_TEAM_TRACK=nano npm run stage -- qa");
+  });
+
+  it("next routes dep-update from build to scoped review", () => {
+    run("dep-update", ["Upgrade lodash to 4.17.21"]);
+    const buildGate = path.join(target, "pipeline", "gates", "stage-04.json");
+    const gate = JSON.parse(fs.readFileSync(buildGate, "utf8"));
+    gate.status = "PASS";
+    fs.writeFileSync(buildGate, `${JSON.stringify(gate, null, 2)}\n`);
+
+    const result = run("next", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.track, "dep-update");
+    assert.equal(payload.stage, "stage-06-backend");
+    assert.equal(payload.command, "CODEX_TEAM_TRACK=dep-update npm run stage -- peer-review");
+  });
+
+  it("next keeps hotfix on its expedited track", () => {
+    run("hotfix", ["Fix production checkout timeout"]);
+    const buildGate = path.join(target, "pipeline", "gates", "stage-04.json");
+    const gate = JSON.parse(fs.readFileSync(buildGate, "utf8"));
+    gate.status = "PASS";
+    fs.writeFileSync(buildGate, `${JSON.stringify(gate, null, 2)}\n`);
+
+    const result = run("next", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.track, "hotfix");
+    assert.equal(payload.stage, "stage-05");
+    assert.equal(payload.command, "CODEX_TEAM_TRACK=hotfix npm run stage -- pre-review");
   });
 
   it("summary writes a durable pipeline summary", () => {
