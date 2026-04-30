@@ -47,6 +47,7 @@ function releaseChecks() {
     "gate:check:all",
     "summary",
     "pr:pack",
+    "autofold",
   ]) {
     if (!pkg.scripts?.[script]) errors.push(`missing npm script: ${script}`);
   }

@@ -62,6 +62,7 @@ instead of creating package metadata just for the framework.
 | `/stage <name>` | `npm run stage -- <name>` |
 | `/status` | `npm run status` |
 | `/next` | `npm run next` |
+| Auto-fold eligible gates | `npm run autofold` |
 | `/roadmap` | `npm run roadmap` |
 | Help | `npm run help` |
 | `/audit [scope]` | `npm run audit -- "<scope>"` |

@@ -27,6 +27,7 @@
     "review:derive": "node scripts/approval-derivation.js",
     "security:check": "node scripts/security-heuristic.js",
     "runbook:check": "node scripts/runbook-check.js",
+    "autofold": "node scripts/codex-team.js autofold",
     "pipeline": "node scripts/codex-team.js pipeline",
     "quick": "node scripts/codex-team.js quick",
     "nano": "node scripts/codex-team.js nano",

@@ -39,6 +39,7 @@ const PACKAGE_SCRIPTS = {
   "review:derive": "node scripts/approval-derivation.js",
   "security:check": "node scripts/security-heuristic.js",
   "runbook:check": "node scripts/runbook-check.js",
+  autofold: "node scripts/codex-team.js autofold",
   lessons: "node scripts/codex-team.js lessons",
   "pr:pack": "node scripts/pr-pack.js",
 };

@@ -49,6 +49,7 @@ describe("release helper", () => {
         "gate:check:all": "node scripts/gate-validator.js --all",
         summary: "node scripts/codex-team.js summary",
         "pr:pack": "node scripts/pr-pack.js",
+        autofold: "node scripts/codex-team.js autofold",
       },
     }, null, 2));
     fs.writeFileSync(path.join(target, "package-lock.json"), JSON.stringify({

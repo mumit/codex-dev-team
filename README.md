@@ -129,6 +129,7 @@ npm run stage -- qa
 npm run review:derive
 npm run security:check -- src/backend/auth/session.js
 npm run runbook:check
+npm run autofold
 npm run lessons -- show
 npm run lessons -- promote
 ```

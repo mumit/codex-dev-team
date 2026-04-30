@@ -491,6 +491,44 @@ function stageCommandForTrack(track, name) {
     : `CODEX_TEAM_TRACK=${track} npm run stage -- ${name}`;
 }
 
+function writeGate(stage, gate) {
+  fs.mkdirSync(path.join(ROOT, "pipeline", "gates"), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, "pipeline", "gates", `${stage}.json`), `${JSON.stringify(gate, null, 2)}\n`);
+}
+
+function nanoAutoFoldEligibility() {
+  const build = readGate("stage-04");
+  if (!build.exists) return { ok: false, reason: "stage-04 gate is missing" };
+  if (build.gate.status !== "PASS") return { ok: false, reason: "stage-04 gate is not PASS" };
+  if (build.gate.regression_check !== "PASS" &&
+      !(Array.isArray(build.gate.local_verification) && build.gate.local_verification.length > 0)) {
+    return { ok: false, reason: "stage-04 must record regression_check=PASS or local_verification" };
+  }
+  return { ok: true, reason: "stage-04 has regression evidence" };
+}
+
+function signoffAutoFoldEligibility(track) {
+  if (track === "hotfix") return { ok: false, reason: "hotfix requires explicit PM sign-off" };
+  if (track === "nano") return { ok: false, reason: "nano has no deploy/sign-off stage" };
+
+  const qa = readGate("stage-07");
+  if (!qa.exists) return { ok: false, reason: "stage-07 gate is missing" };
+  if (qa.gate.status !== "PASS") return { ok: false, reason: "stage-07 gate is not PASS" };
+
+  if (["config-only", "dep-update"].includes(track)) {
+    return qa.gate.regression_check === "PASS"
+      ? { ok: true, reason: "regression-only QA gate passed" }
+      : { ok: false, reason: "stage-07 requires regression_check=PASS" };
+  }
+
+  if (qa.gate.all_acceptance_criteria_met === true &&
+      qa.gate.criterion_to_test_mapping_is_one_to_one === true) {
+    return { ok: true, reason: "QA acceptance criteria passed with 1:1 mapping" };
+  }
+
+  return { ok: false, reason: "stage-07 must meet acceptance criteria with 1:1 mapping" };
+}
+
 function nextPayload() {
   const track = activeTrack();
   for (const name of orderedStageNamesForTrack(track)) {
@@ -498,6 +536,30 @@ function nextPayload() {
     const gate = readGate(config.stage);
 
     if (!gate.exists) {
+      if (track === "nano" && name === "qa" && nanoAutoFoldEligibility().ok) {
+        return {
+          complete: false,
+          action: "auto-fold-nano-qa",
+          stage: config.stage,
+          name,
+          role: config.role,
+          track,
+          reason: "nano-regression-evidence-present",
+          command: "npm run autofold",
+        };
+      }
+      if (name === "deploy" && signoffAutoFoldEligibility(track).ok) {
+        return {
+          complete: false,
+          action: "auto-fold-signoff",
+          stage: config.stage,
+          name,
+          role: config.role,
+          track,
+          reason: "qa-gate-allows-auto-signoff",
+          command: "npm run autofold",
+        };
+      }
       return {
         complete: false,
         action: "scaffold-stage",
@@ -646,6 +708,74 @@ function runPipelineReview() {
   const stageStatus = scaffoldStage("peer-review");
   if (stageStatus !== 0) return stageStatus;
   return runNodeScript("approval-derivation.js");
+}
+
+function runAutoFold() {
+  const track = activeTrack();
+
+  if (track === "nano") {
+    const existingQa = readGate("stage-07");
+    if (existingQa.exists) {
+      console.log("exists pipeline/gates/stage-07.json");
+      return 0;
+    }
+
+    const eligibility = nanoAutoFoldEligibility();
+    if (!eligibility.ok) {
+      console.error(`Cannot auto-fold nano QA: ${eligibility.reason}`);
+      return 1;
+    }
+
+    writeGate("stage-07", {
+      stage: "stage-07",
+      status: "PASS",
+      agent: "orchestrator",
+      track,
+      timestamp: new Date().toISOString(),
+      blockers: [],
+      warnings: [],
+      all_acceptance_criteria_met: true,
+      tests_total: 0,
+      tests_passed: 0,
+      tests_failed: 0,
+      failing_tests: [],
+      criterion_to_test_mapping_is_one_to_one: true,
+      regression_check: "PASS",
+      auto_from_stage_04: true,
+    });
+    appendContext(`${new Date().toISOString()} - AUTOFOLD: nano QA from stage-04 regression evidence`);
+    console.log("created pipeline/gates/stage-07.json");
+    return 0;
+  }
+
+  const existingDeploy = readGate("stage-08");
+  if (existingDeploy.exists) {
+    console.log("exists pipeline/gates/stage-08.json");
+    return 0;
+  }
+
+  const eligibility = signoffAutoFoldEligibility(track);
+  if (!eligibility.ok) {
+    console.error(`Cannot auto-fold sign-off: ${eligibility.reason}`);
+    return 1;
+  }
+
+  writeGate("stage-08", {
+    stage: "stage-08",
+    status: "PASS",
+    agent: "orchestrator",
+    track,
+    timestamp: new Date().toISOString(),
+    blockers: [],
+    warnings: ["Deployment not requested by auto-fold"],
+    pm_signoff: true,
+    deploy_requested: false,
+    runbook_referenced: false,
+    auto_from_stage_07: true,
+  });
+  appendContext(`${new Date().toISOString()} - AUTOFOLD: Stage 8 sign-off from Stage 7 QA`);
+  console.log("created pipeline/gates/stage-08.json");
+  return 0;
 }
 
 function runRetrospective() {
@@ -995,7 +1125,7 @@ function usage(exitCode = 1) {
     "",
     "Core:",
     "  status | next | roadmap | validate | doctor | reset",
-    "  review | security | runbook | lessons | summary",
+    "  review | security | runbook | lessons | summary | autofold",
     "  audit | audit-quick | health-check",
     "",
     "Pipeline:",
@@ -1033,6 +1163,7 @@ function main() {
   if (command === "validate") return validate();
   if (command === "doctor") return doctor();
   if (command === "reset") return reset();
+  if (command === "autofold") return runAutoFold();
   if (command === "review") return runNodeScript("approval-derivation.js");
   if (command === "security") return runNodeScript("security-heuristic.js", process.argv.slice(3));
   if (command === "runbook") return runNodeScript("runbook-check.js");

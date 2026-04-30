@@ -188,6 +188,116 @@ describe("codex-team CLI", () => {
     assert.equal(payload.command, "CODEX_TEAM_TRACK=hotfix npm run stage -- pre-review");
   });
 
+  it("next offers auto-fold when quick QA can become sign-off", () => {
+    run("quick", ["Fix empty state copy"]);
+    fs.writeFileSync(path.join(target, "pipeline", "gates", "stage-01.json"), JSON.stringify({
+      stage: "stage-01",
+      status: "PASS",
+      agent: "pm",
+      track: "quick",
+      timestamp: "2026-04-30T00:00:00Z",
+      blockers: [],
+      warnings: [],
+      acceptance_criteria_count: 1,
+      out_of_scope_items: [],
+      required_sections_complete: true,
+    }));
+    fs.writeFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), JSON.stringify({
+      stage: "stage-04",
+      status: "PASS",
+      agent: "codex-team",
+      track: "quick",
+      timestamp: "2026-04-30T00:00:00Z",
+      blockers: [],
+      warnings: [],
+      workstreams: ["frontend"],
+      pr_summaries_written: ["pipeline/pr-frontend.md"],
+      local_verification: ["npm test"],
+    }));
+    fs.writeFileSync(path.join(target, "pipeline", "gates", "stage-06-backend.json"), JSON.stringify({
+      stage: "stage-06-backend",
+      status: "PASS",
+      agent: "codex-team",
+      track: "quick",
+      timestamp: "2026-04-30T00:00:00Z",
+      blockers: [],
+      warnings: [],
+      area: "backend",
+      review_shape: "scoped",
+      required_approvals: 1,
+      approvals: ["platform"],
+      changes_requested: [],
+      escalated_to_principal: false,
+    }));
+    fs.writeFileSync(path.join(target, "pipeline", "gates", "stage-07.json"), JSON.stringify({
+      stage: "stage-07",
+      status: "PASS",
+      agent: "qa",
+      track: "quick",
+      timestamp: "2026-04-30T00:00:00Z",
+      blockers: [],
+      warnings: [],
+      all_acceptance_criteria_met: true,
+      tests_total: 1,
+      tests_passed: 1,
+      tests_failed: 0,
+      failing_tests: [],
+      criterion_to_test_mapping_is_one_to_one: true,
+    }));
+
+    const result = run("next", ["--json"]);
+
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.equal(payload.action, "auto-fold-signoff");
+    assert.equal(payload.command, "npm run autofold");
+  });
+
+  it("autofold writes sign-off from passing QA", () => {
+    run("quick", ["Fix empty state copy"]);
+    fs.writeFileSync(path.join(target, "pipeline", "gates", "stage-07.json"), JSON.stringify({
+      stage: "stage-07",
+      status: "PASS",
+      agent: "qa",
+      track: "quick",
+      timestamp: "2026-04-30T00:00:00Z",
+      blockers: [],
+      warnings: [],
+      all_acceptance_criteria_met: true,
+      tests_total: 1,
+      tests_passed: 1,
+      tests_failed: 0,
+      failing_tests: [],
+      criterion_to_test_mapping_is_one_to_one: true,
+    }));
+
+    const result = run("autofold");
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /created pipeline\/gates\/stage-08\.json/);
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-08.json"), "utf8"));
+    assert.equal(gate.pm_signoff, true);
+    assert.equal(gate.auto_from_stage_07, true);
+    assert.equal(gate.deploy_requested, false);
+  });
+
+  it("autofold writes nano QA from build regression evidence", () => {
+    run("nano", ["Fix README typo"]);
+    const buildGatePath = path.join(target, "pipeline", "gates", "stage-04.json");
+    const buildGate = JSON.parse(fs.readFileSync(buildGatePath, "utf8"));
+    buildGate.status = "PASS";
+    buildGate.regression_check = "PASS";
+    fs.writeFileSync(buildGatePath, `${JSON.stringify(buildGate, null, 2)}\n`);
+
+    const result = run("autofold");
+
+    assert.equal(result.status, 0);
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-07.json"), "utf8"));
+    assert.equal(gate.track, "nano");
+    assert.equal(gate.regression_check, "PASS");
+    assert.equal(gate.auto_from_stage_04, true);
+  });
+
   it("summary writes a durable pipeline summary", () => {
     run("stage", ["requirements"]);
 
