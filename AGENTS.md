@@ -34,6 +34,10 @@ below.
 
 Use these local npm scripts when a user asks for the matching command-style workflow:
 
+Bootstrap only installs npm shims when the target already has `package.json`.
+For non-Node projects, use the same commands through `node scripts/codex-team.js`
+instead of creating package metadata just for the framework.
+
 | User intent | Local command |
 |---|---|
 | `/pipeline <feature>` | `npm run pipeline -- "<feature>"` |

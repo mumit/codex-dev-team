@@ -76,6 +76,13 @@ describe("bootstrap", () => {
     assert.equal(pkg.scripts["pipeline:scaffold"], "node scripts/codex-team.js pipeline:scaffold");
   });
 
+  it("does not create package.json for non-Node targets", () => {
+    run();
+
+    assert.equal(fs.existsSync(path.join(target, "package.json")), false);
+    assert.ok(fs.existsSync(path.join(target, "scripts", "codex-team.js")));
+  });
+
   it("stamps framework version", () => {
     run();
     const source = fs.readFileSync(path.join(ROOT, "VERSION"), "utf8");

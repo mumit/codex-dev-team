@@ -30,6 +30,17 @@ npm run doctor
 bash bootstrap.sh /path/to/target-project
 ```
 
+Bootstrap preserves the host project's identity. If the target already has a
+`package.json`, missing npm command shims are added without overwriting existing
+scripts. If the target is not a Node project, no `package.json` is created; use
+the installed CLI directly:
+
+```bash
+node scripts/codex-team.js help
+node scripts/codex-team.js status
+node scripts/codex-team.js pipeline "Add authentication"
+```
+
 Then open the target project in Codex and use the installed skills:
 
 - `pipeline: build <feature>`
