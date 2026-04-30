@@ -68,6 +68,7 @@ instead of creating package metadata just for the framework.
 | `/audit [scope]` | `npm run audit -- "<scope>"` |
 | `/audit-quick [scope]` | `npm run audit:quick -- "<scope>"` |
 | `/health-check` | `npm run health-check` |
+| Claude parity checklist | `npm run parity:check` |
 
 ## Local vs Cloud
 

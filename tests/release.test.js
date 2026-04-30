@@ -50,6 +50,7 @@ describe("release helper", () => {
         summary: "node scripts/codex-team.js summary",
         "pr:pack": "node scripts/pr-pack.js",
         autofold: "node scripts/codex-team.js autofold",
+        "parity:check": "node scripts/parity-check.js",
       },
     }, null, 2));
     fs.writeFileSync(path.join(target, "package-lock.json"), JSON.stringify({

@@ -48,6 +48,7 @@ function releaseChecks() {
     "summary",
     "pr:pack",
     "autofold",
+    "parity:check",
   ]) {
     if (!pkg.scripts?.[script]) errors.push(`missing npm script: ${script}`);
   }

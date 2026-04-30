@@ -88,6 +88,7 @@ npm run validate
 npm run release:check
 npm run release:notes
 npm run pr:pack
+npm run parity:check
 npm run status
 npm run status -- --json
 npm run next

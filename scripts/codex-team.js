@@ -1122,6 +1122,7 @@ function doctor() {
     ["scripts/lessons.js", exists("scripts/lessons.js")],
     ["scripts/lint-syntax.js", exists("scripts/lint-syntax.js")],
     ["scripts/pr-pack.js", exists("scripts/pr-pack.js")],
+    ["scripts/parity-check.js", exists("scripts/parity-check.js")],
     ["scripts/release.js", exists("scripts/release.js")],
     ["scripts/roadmap.js", exists("scripts/roadmap.js")],
     ["scripts/runbook-check.js", exists("scripts/runbook-check.js")],
@@ -1130,6 +1131,7 @@ function doctor() {
     ["scripts/summary.js", exists("scripts/summary.js")],
     ["pipeline/context.md", exists("pipeline/context.md")],
     ["pipeline/lessons-learned.md", exists("pipeline/lessons-learned.md")],
+    ["docs/parity/claude-dev-team-parity.md", exists("docs/parity/claude-dev-team-parity.md")],
   ];
 
   for (const stage of ["01", "02", "03", "04", "05", "06", "07", "08", "09"]) {

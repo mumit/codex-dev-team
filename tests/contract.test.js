@@ -147,6 +147,25 @@ describe("framework contracts", () => {
     }
   });
 
+  it("tracks Claude Dev Team parity status", () => {
+    const parity = read("docs/parity/claude-dev-team-parity.md");
+    for (const command of [
+      "/pipeline",
+      "/quick",
+      "/nano",
+      "/config-only",
+      "/dep-update",
+      "/hotfix",
+      "/status",
+      "/stage",
+    ]) {
+      assert.match(parity, new RegExp(`\\\`${command}\\\``));
+    }
+    assert.match(parity, /## v1\.0 Blockers/);
+    assert.match(parity, /Gap before v1\.0/);
+    assert.match(parity, /Codex Improvements Beyond Claude/);
+  });
+
   it("CI runs framework release checks", () => {
     const workflow = read(".github/workflows/test.yml");
     for (const command of ["npm run lint", "npm test", "npm run validate", "npm run doctor", "npm run release:check"]) {

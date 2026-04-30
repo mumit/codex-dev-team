@@ -44,6 +44,8 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /PASS scripts\/summary\.js/);
     assert.match(result.stdout, /PASS scripts\/release\.js/);
     assert.match(result.stdout, /PASS scripts\/pr-pack\.js/);
+    assert.match(result.stdout, /PASS scripts\/parity-check\.js/);
+    assert.match(result.stdout, /PASS docs\/parity\/claude-dev-team-parity\.md/);
     assert.match(result.stdout, /PASS \.codex\/prompts\/roles\/pm\.md/);
     assert.match(result.stdout, /PASS schemas\/stage-09\.schema\.json/);
     assert.match(result.stdout, /PASS templates\/retrospective-template\.md/);

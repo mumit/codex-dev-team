@@ -42,6 +42,7 @@ const PACKAGE_SCRIPTS = {
   autofold: "node scripts/codex-team.js autofold",
   lessons: "node scripts/codex-team.js lessons",
   "pr:pack": "node scripts/pr-pack.js",
+  "parity:check": "node scripts/parity-check.js",
 };
 
 function copyDir(src, dest) {
@@ -114,6 +115,7 @@ function main() {
   copyDir(path.join(SOURCE, "scripts"), path.join(TARGET, "scripts"));
   copyDir(path.join(SOURCE, "schemas"), path.join(TARGET, "schemas"));
   copyDir(path.join(SOURCE, "templates"), path.join(TARGET, "templates"));
+  copyDir(path.join(SOURCE, "docs"), path.join(TARGET, "docs"));
 
   copyFileIfMissing(path.join(SOURCE, "AGENTS.md"), path.join(TARGET, "AGENTS.md"));
   fs.mkdirSync(path.join(TARGET, "pipeline"), { recursive: true });
