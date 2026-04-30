@@ -514,11 +514,12 @@ function newPipeline(name) {
 function reset() {
   const archiveDir = path.join(ROOT, "pipeline", "archive");
   const context = path.join(ROOT, "pipeline", "context.md");
-  fs.mkdirSync(archiveDir, { recursive: true });
+  const stamp = new Date().toISOString().replaceAll(":", "-");
+  const runArchiveDir = path.join(archiveDir, `run-${stamp}`);
+  fs.mkdirSync(runArchiveDir, { recursive: true });
 
   if (fs.existsSync(context)) {
-    const stamp = new Date().toISOString().replaceAll(":", "-");
-    fs.copyFileSync(context, path.join(archiveDir, `context-${stamp}.md`));
+    fs.copyFileSync(context, path.join(runArchiveDir, "context.md"));
   }
 
   for (const relative of [
@@ -527,6 +528,10 @@ function reset() {
     "pipeline/adr",
   ]) {
     const full = path.join(ROOT, relative);
+    const entries = fs.existsSync(full) ? fs.readdirSync(full) : [];
+    if (entries.length > 0) {
+      fs.cpSync(full, path.join(runArchiveDir, path.basename(relative)), { recursive: true });
+    }
     fs.rmSync(full, { recursive: true, force: true });
     fs.mkdirSync(full, { recursive: true });
   }
