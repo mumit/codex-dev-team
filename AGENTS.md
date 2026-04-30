@@ -26,6 +26,7 @@ below.
 - Read `.codex/rules/gates.md` before writing a gate.
 - Read `pipeline/lessons-learned.md` before substantial planning.
 - Use JSON gates as the source of truth; do not infer stage status from prose.
+- For Stage 8, read `.codex/adapters/<adapter>.md` selected by `.codex/config.yml`.
 - Keep `pipeline/context.md` append-only during a run.
 - Keep changes scoped to the role's ownership unless the user approves a wider change.
 - Run `npm test` and `npm run lint` before committing framework changes.

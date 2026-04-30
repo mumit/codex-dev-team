@@ -16,6 +16,7 @@ local/cloud execution profiles.
 - Stage 5 approval derivation from review files
 - Security-trigger and runbook helper checks
 - Bootstrap installation into target projects
+- Pluggable Stage 8 deployment adapters for Docker Compose, Kubernetes, Terraform, and custom scripts
 - Role definitions for PM, Principal, Backend, Frontend, Platform, QA, and Security
 - CI-ready tests with no runtime dependencies
 - Version and contract drift tests from the start
@@ -124,3 +125,11 @@ npm run lessons -- promote
 
 Set `CODEX_TEAM_TRACK=quick` (or another supported gate track) before stage or
 prompt commands to stamp that track into generated gates.
+
+## Deployment Adapters
+
+Stage 8 reads `.codex/config.yml` and `.codex/adapters/<adapter>.md`. The
+default adapter is `docker-compose`; built-in alternatives are `kubernetes`,
+`terraform`, and `custom`. Adapters are documented procedures, not hidden
+executors: the Platform role follows the selected adapter, writes
+`pipeline/deploy-log.md`, and advances `pipeline/gates/stage-08.json`.

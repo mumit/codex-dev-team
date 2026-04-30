@@ -35,6 +35,7 @@ describe("codex-team CLI", () => {
     const result = run("doctor");
     assert.equal(result.status, 0);
     assert.match(result.stdout, /PASS AGENTS\.md/);
+    assert.match(result.stdout, /PASS \.codex\/adapters\/docker-compose\.md/);
     assert.match(result.stdout, /PASS scripts\/codex-team\.js/);
     assert.match(result.stdout, /PASS scripts\/gate-validator\.js/);
     assert.match(result.stdout, /PASS scripts\/consistency\.js/);

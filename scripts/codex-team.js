@@ -570,6 +570,11 @@ function doctor() {
   const checks = [
     ["AGENTS.md", exists("AGENTS.md")],
     [".codex/config.yml", exists(".codex/config.yml")],
+    [".codex/adapters/README.md", exists(".codex/adapters/README.md")],
+    [".codex/adapters/docker-compose.md", exists(".codex/adapters/docker-compose.md")],
+    [".codex/adapters/kubernetes.md", exists(".codex/adapters/kubernetes.md")],
+    [".codex/adapters/terraform.md", exists(".codex/adapters/terraform.md")],
+    [".codex/adapters/custom.md", exists(".codex/adapters/custom.md")],
     [".codex/skills/pipeline/SKILL.md", exists(".codex/skills/pipeline/SKILL.md")],
     ["schemas/gate.schema.json", exists("schemas/gate.schema.json")],
     ["scripts/approval-derivation.js", exists("scripts/approval-derivation.js")],

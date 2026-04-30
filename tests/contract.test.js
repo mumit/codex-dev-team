@@ -130,6 +130,23 @@ describe("framework contracts", () => {
     }
   });
 
+  it("deployment adapters are documented and configured", () => {
+    const config = read(".codex/config.yml");
+    const adaptersReadme = read(".codex/adapters/README.md");
+    const adapterNames = ["docker-compose", "kubernetes", "terraform", "custom"];
+
+    assert.match(config, /adapter: docker-compose/);
+    for (const name of adapterNames) {
+      const body = read(`.codex/adapters/${name}.md`);
+      assert.match(adaptersReadme, new RegExp(`\\\`${name}\\\``));
+      assert.match(body, new RegExp(`# Adapter: ${name}`));
+      assert.match(body, /## Assumptions/);
+      assert.match(body, /## Procedure/);
+      assert.match(body, /## Gate Body/);
+      assert.match(body, /## Runbook Hooks/);
+    }
+  });
+
   it("CI runs framework release checks", () => {
     const workflow = read(".github/workflows/test.yml");
     for (const command of ["npm run lint", "npm test", "npm run validate", "npm run doctor", "npm run release:check"]) {
