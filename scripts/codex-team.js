@@ -256,6 +256,17 @@ function validateTrack() {
   return false;
 }
 
+function withTrack(track, callback) {
+  const previous = process.env.CODEX_TEAM_TRACK;
+  process.env.CODEX_TEAM_TRACK = track;
+  try {
+    return callback();
+  } finally {
+    if (previous === undefined) delete process.env.CODEX_TEAM_TRACK;
+    else process.env.CODEX_TEAM_TRACK = previous;
+  }
+}
+
 function draftGateObject(stageConfig, timestamp = new Date().toISOString()) {
   return {
     stage: stageConfig.stage,
@@ -528,6 +539,103 @@ function runRetrospective() {
   return 0;
 }
 
+function writeHotfixSpec(description) {
+  return writeIfMissing("pipeline/hotfix-spec.md", [
+    "# Hotfix Spec",
+    "",
+    "## Broken Behavior",
+    "",
+    description,
+    "",
+    "## Fix Approach",
+    "",
+    "TBD",
+    "",
+    "## Blast Radius Constraints",
+    "",
+    "- TBD",
+    "",
+  ].join("\n"));
+}
+
+function recordTrackStart(track, description) {
+  ensurePipelineWorkspace();
+  const now = new Date().toISOString();
+  const linesByTrack = {
+    quick: [
+      `${now} - TRACK: quick`,
+      `CHANGE: ${description}`,
+      "SCOPE: small contained change; route to full pipeline if it crosses areas or grows past quick bounds",
+    ],
+    nano: [
+      `${now} - TRACK: nano`,
+      `CHANGE: ${description}`,
+      "FILE(S): TBD",
+    ],
+    "config-only": [
+      `${now} - TRACK: config-only`,
+      "CONFIG-ONLY scope: TBD",
+      `Rationale: ${description}`,
+    ],
+    "dep-update": [
+      `${now} - TRACK: dep-update`,
+      `DEP-UPDATE: ${description}`,
+      "Reason: TBD",
+      "Blast radius: TBD",
+    ],
+    hotfix: [
+      `${now} - TRACK: hotfix`,
+      `BUG/FIX: ${description}`,
+      "STAGE-4.5A-SKIP: hotfix track",
+    ],
+  };
+
+  fs.appendFileSync(
+    path.join(ROOT, "pipeline", "context.md"),
+    `\n${linesByTrack[track].join("\n")}\n`,
+  );
+}
+
+function runTrack(track, description) {
+  const normalizedDescription = description.trim();
+  if (!normalizedDescription) {
+    console.error(`Usage: codex-team ${track} <change description>`);
+    return 1;
+  }
+
+  return withTrack(track, () => {
+    recordTrackStart(track, normalizedDescription);
+
+    if (track === "quick") {
+      const status = newPipeline(normalizedDescription);
+      if (status !== 0) return status;
+      const stageStatus = scaffoldStage("requirements");
+      if (stageStatus !== 0) return stageStatus;
+      console.log("");
+      console.log("Track: quick");
+      console.log("Next: complete the mini brief, write the Stage 1 gate, then run npm run prompt -- build.");
+      return 0;
+    }
+
+    if (track === "hotfix") {
+      writeHotfixSpec(normalizedDescription);
+      const stageStatus = scaffoldStage("build");
+      if (stageStatus !== 0) return stageStatus;
+      console.log("");
+      console.log("Track: hotfix");
+      console.log("Next: complete pipeline/hotfix-spec.md, then run npm run prompt -- build.");
+      return 0;
+    }
+
+    const stageStatus = scaffoldStage("build");
+    if (stageStatus !== 0) return stageStatus;
+    console.log("");
+    console.log(`Track: ${track}`);
+    console.log("Next: complete the scoped build artifact, write the Stage 4 gate, then run npm run validate.");
+    return 0;
+  });
+}
+
 function nextAdrNumber() {
   ensurePipelineWorkspace();
   const adrDir = path.join(ROOT, "pipeline", "adr");
@@ -642,6 +750,7 @@ function reset() {
   const artifactFiles = [
     "brief.md",
     "design-spec.md",
+    "hotfix-spec.md",
     "clarification-log.md",
     "build-plan.md",
     "pre-review.md",
@@ -770,6 +879,11 @@ function usage(exitCode = 1) {
     "",
     "Pipeline:",
     "  pipeline <feature>",
+    "  quick <change>",
+    "  nano <change>",
+    "  config-only <change>",
+    "  dep-update <dependency update>",
+    "  hotfix <bug and fix>",
     "  pipeline:scaffold <feature>",
     "  pipeline:new <feature>",
     "  pipeline-brief [feature]",
@@ -805,6 +919,11 @@ function main() {
   if (command === "audit-quick") return runNodeScript("audit.js", ["quick", ...process.argv.slice(3)]);
   if (command === "health-check") return runNodeScript("audit.js", ["health-check", ...process.argv.slice(3)]);
   if (command === "pipeline") return runPipeline(process.argv.slice(3).join(" "));
+  if (command === "quick") return runTrack("quick", process.argv.slice(3).join(" "));
+  if (command === "nano") return runTrack("nano", process.argv.slice(3).join(" "));
+  if (command === "config-only") return runTrack("config-only", process.argv.slice(3).join(" "));
+  if (command === "dep-update") return runTrack("dep-update", process.argv.slice(3).join(" "));
+  if (command === "hotfix") return runTrack("hotfix", process.argv.slice(3).join(" "));
   if (command === "pipeline:scaffold") return scaffoldPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline:new") return newPipeline(process.argv.slice(3).join(" "));
   if (command === "pipeline-brief") {

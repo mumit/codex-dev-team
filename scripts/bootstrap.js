@@ -15,6 +15,11 @@ const PACKAGE_SCRIPTS = {
   doctor: "node scripts/codex-team.js doctor",
   "pipeline:check": "node scripts/consistency.js",
   pipeline: "node scripts/codex-team.js pipeline",
+  quick: "node scripts/codex-team.js quick",
+  nano: "node scripts/codex-team.js nano",
+  "config-only": "node scripts/codex-team.js config-only",
+  "dep-update": "node scripts/codex-team.js dep-update",
+  hotfix: "node scripts/codex-team.js hotfix",
   "pipeline:scaffold": "node scripts/codex-team.js pipeline:scaffold",
   "pipeline:brief": "node scripts/codex-team.js pipeline-brief",
   "pipeline:review": "node scripts/codex-team.js pipeline-review",
@@ -65,6 +70,7 @@ function appendGitignore(target) {
 # Codex Dev Team runtime artifacts
 pipeline/brief.md
 pipeline/design-spec.md
+pipeline/hotfix-spec.md
 pipeline/design-review-notes.md
 pipeline/pr-*.md
 pipeline/code-review/

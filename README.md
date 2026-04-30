@@ -100,6 +100,11 @@ npm run audit:quick -- "src/frontend"
 npm run health-check
 npm run reset
 npm run pipeline -- "Add authentication"
+npm run quick -- "Fix empty state copy"
+npm run nano -- "Fix README typo"
+npm run config-only -- "Toggle existing checkout flag"
+npm run dep-update -- "Upgrade lodash to 4.17.21"
+npm run hotfix -- "Fix production checkout timeout"
 npm run pipeline:scaffold -- "Add authentication"
 npm run pipeline:new -- "Add authentication"
 npm run pipeline:brief -- "Add authentication"

@@ -28,6 +28,11 @@ locally, in a Codex app worktree, or as delegated cloud tasks.
 
 ## Helper Commands
 
+- `npm run quick -- "<change>"` starts a quick-track run and stamps quick gates.
+- `npm run nano -- "<change>"` records a nano scope and starts the edit stage.
+- `npm run config-only -- "<change>"` records config-only scope and starts platform edit.
+- `npm run dep-update -- "<update>"` records dependency scope and starts platform edit.
+- `npm run hotfix -- "<bug and fix>"` writes `pipeline/hotfix-spec.md` and starts build.
 - `npm run review:derive` derives Stage 6 approval gates from review files.
 - `npm run security:check -- <changed files>` decides whether security review is required.
 - `npm run runbook:check` verifies `pipeline/runbook.md` before deploy.

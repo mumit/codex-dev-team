@@ -42,6 +42,11 @@ instead of creating package metadata just for the framework.
 | User intent | Local command |
 |---|---|
 | `/pipeline <feature>` | `npm run pipeline -- "<feature>"` |
+| `/quick <change>` | `npm run quick -- "<change>"` |
+| `/nano <change>` | `npm run nano -- "<change>"` |
+| `/config-only <change>` | `npm run config-only -- "<change>"` |
+| `/dep-update <update>` | `npm run dep-update -- "<update>"` |
+| `/hotfix <bug and fix>` | `npm run hotfix -- "<bug and fix>"` |
 | Full pipeline scaffold | `npm run pipeline:scaffold -- "<feature>"` |
 | `/pipeline-brief <feature>` | `npm run pipeline:brief -- "<feature>"` |
 | `/design <feature>` | `npm run design -- "<feature>"` |

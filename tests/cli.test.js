@@ -251,6 +251,67 @@ describe("codex-team CLI", () => {
     assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /Add notifications/);
   });
 
+  it("quick command starts a quick-track mini brief", () => {
+    const result = run("quick", ["Fix empty state copy"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: quick/);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "brief.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-01.json"), "utf8"));
+    assert.equal(gate.track, "quick");
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /TRACK: quick/);
+  });
+
+  it("nano command records scope and starts the edit stage", () => {
+    const result = run("nano", ["Fix README typo"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: nano/);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "build-plan.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), "utf8"));
+    assert.equal(gate.track, "nano");
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /TRACK: nano/);
+  });
+
+  it("config-only command records config scope and starts platform edit", () => {
+    const result = run("config-only", ["Toggle existing checkout flag"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: config-only/);
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), "utf8"));
+    assert.equal(gate.track, "config-only");
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /CONFIG-ONLY scope/);
+  });
+
+  it("dep-update command records dependency scope and starts platform edit", () => {
+    const result = run("dep-update", ["Upgrade lodash to 4.17.21"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: dep-update/);
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), "utf8"));
+    assert.equal(gate.track, "dep-update");
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /DEP-UPDATE: Upgrade lodash/);
+  });
+
+  it("hotfix command writes a hotfix spec and starts expedited build", () => {
+    const result = run("hotfix", ["Fix production checkout timeout"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: hotfix/);
+    assert.ok(fs.existsSync(path.join(target, "pipeline", "hotfix-spec.md")));
+    const gate = JSON.parse(fs.readFileSync(path.join(target, "pipeline", "gates", "stage-04.json"), "utf8"));
+    assert.equal(gate.track, "hotfix");
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "hotfix-spec.md"), "utf8"), /Fix production checkout timeout/);
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /STAGE-4\.5A-SKIP: hotfix track/);
+  });
+
+  it("track starter commands require a description", () => {
+    const result = run("quick");
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Usage: codex-team quick <change description>/);
+  });
+
   it("pipeline:scaffold command prepares all stage artifacts and gates", () => {
     const result = run("pipeline:scaffold", ["Add exports"]);
 
