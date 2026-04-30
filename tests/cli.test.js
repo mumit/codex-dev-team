@@ -132,6 +132,8 @@ describe("codex-team CLI", () => {
     const gates = path.join(target, "pipeline", "gates");
     const review = path.join(target, "pipeline", "code-review");
     const lessons = path.join(target, "pipeline", "lessons-learned.md");
+    fs.writeFileSync(path.join(target, "pipeline", "brief.md"), "# Brief\n");
+    fs.writeFileSync(path.join(target, "pipeline", "pr-backend.md"), "# Backend PR\n");
     fs.writeFileSync(path.join(gates, "stage-01.json"), "{}");
     fs.writeFileSync(path.join(review, "by-backend.md"), "APPROVED\n");
     fs.appendFileSync(lessons, "\n### L999 - Keep me\n");
@@ -140,10 +142,14 @@ describe("codex-team CLI", () => {
     assert.equal(result.status, 0);
     assert.deepEqual(fs.readdirSync(gates), []);
     assert.deepEqual(fs.readdirSync(review), []);
+    assert.equal(fs.existsSync(path.join(target, "pipeline", "brief.md")), false);
+    assert.equal(fs.existsSync(path.join(target, "pipeline", "pr-backend.md")), false);
     const archiveRuns = fs.readdirSync(path.join(target, "pipeline", "archive"));
     assert.equal(archiveRuns.length, 1);
     const archivedRun = path.join(target, "pipeline", "archive", archiveRuns[0]);
     assert.ok(fs.existsSync(path.join(archivedRun, "context.md")));
+    assert.ok(fs.existsSync(path.join(archivedRun, "brief.md")));
+    assert.ok(fs.existsSync(path.join(archivedRun, "pr-backend.md")));
     assert.ok(fs.existsSync(path.join(archivedRun, "gates", "stage-01.json")));
     assert.ok(fs.existsSync(path.join(archivedRun, "code-review", "by-backend.md")));
     assert.match(fs.readFileSync(lessons, "utf8"), /L999/);

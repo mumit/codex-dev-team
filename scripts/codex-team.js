@@ -516,10 +516,36 @@ function reset() {
   const context = path.join(ROOT, "pipeline", "context.md");
   const stamp = new Date().toISOString().replaceAll(":", "-");
   const runArchiveDir = path.join(archiveDir, `run-${stamp}`);
+  const artifactFiles = [
+    "brief.md",
+    "design-spec.md",
+    "clarification-log.md",
+    "build-plan.md",
+    "pre-review.md",
+    "security-review.md",
+    "test-report.md",
+    "runbook.md",
+    "deploy-log.md",
+    "retrospective.md",
+    "summary.md",
+  ];
   fs.mkdirSync(runArchiveDir, { recursive: true });
 
   if (fs.existsSync(context)) {
     fs.copyFileSync(context, path.join(runArchiveDir, "context.md"));
+  }
+
+  const pipelineDir = path.join(ROOT, "pipeline");
+  for (const file of fs.existsSync(pipelineDir) ? fs.readdirSync(pipelineDir) : []) {
+    if (/^pr-.+\.md$/.test(file)) artifactFiles.push(file);
+  }
+
+  for (const file of artifactFiles) {
+    const full = path.join(pipelineDir, file);
+    if (fs.existsSync(full)) {
+      fs.copyFileSync(full, path.join(runArchiveDir, file));
+      fs.rmSync(full);
+    }
   }
 
   for (const relative of [
