@@ -2,9 +2,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const GATES_DIR = path.join(process.cwd(), "pipeline", "gates");
-const ROOT = process.cwd();
-
 const ARTIFACTS = [
   "pipeline/brief.md",
   "pipeline/design-spec.md",
@@ -19,13 +16,116 @@ const ARTIFACTS = [
   "docs/audit/10-roadmap.md",
 ];
 
+function root() {
+  return process.cwd();
+}
+
+function gatesDir() {
+  return path.join(root(), "pipeline", "gates");
+}
+
+function contextPath() {
+  return path.join(root(), "pipeline", "context.md");
+}
+
+function contextSignals() {
+  const file = contextPath();
+  const signals = {
+    questions: {
+      total: 0,
+      open: 0,
+      answered: 0,
+      latestOpen: [],
+    },
+    principalRulingRequests: {
+      total: 0,
+      latest: [],
+    },
+    resumes: {
+      total: 0,
+      latest: [],
+    },
+    keyDecisions: {
+      total: 0,
+      latest: [],
+    },
+  };
+
+  if (!fs.existsSync(file)) return signals;
+
+  const lines = fs.readFileSync(file, "utf8").split(/\r?\n/);
+  let pendingQuestion = null;
+
+  function pushLatest(collection, value, max = 3) {
+    collection.unshift(value);
+    if (collection.length > max) collection.pop();
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    if (trimmed.startsWith("QUESTION:")) {
+      if (pendingQuestion) {
+        signals.questions.open += 1;
+        pushLatest(signals.questions.latestOpen, pendingQuestion);
+      }
+      pendingQuestion = trimmed.slice("QUESTION:".length).trim();
+      signals.questions.total += 1;
+      continue;
+    }
+
+    if (trimmed.startsWith("PM-ANSWER:")) {
+      if (pendingQuestion) {
+        signals.questions.answered += 1;
+        pendingQuestion = null;
+      }
+      continue;
+    }
+
+    if (pendingQuestion) {
+      signals.questions.open += 1;
+      pushLatest(signals.questions.latestOpen, pendingQuestion);
+      pendingQuestion = null;
+    }
+
+    if (trimmed.startsWith("PRINCIPAL-RULING-REQUEST:")) {
+      signals.principalRulingRequests.total += 1;
+      pushLatest(
+        signals.principalRulingRequests.latest,
+        trimmed.slice("PRINCIPAL-RULING-REQUEST:".length).trim(),
+      );
+      continue;
+    }
+
+    if (trimmed.includes(" - RESUME: ")) {
+      signals.resumes.total += 1;
+      pushLatest(signals.resumes.latest, trimmed);
+      continue;
+    }
+
+    if (trimmed.includes(" - ADR ") || trimmed.startsWith("KEY-DECISION:")) {
+      signals.keyDecisions.total += 1;
+      pushLatest(signals.keyDecisions.latest, trimmed);
+    }
+  }
+
+  if (pendingQuestion) {
+    signals.questions.open += 1;
+    pushLatest(signals.questions.latestOpen, pendingQuestion);
+  }
+
+  return signals;
+}
+
 function gates() {
-  if (!fs.existsSync(GATES_DIR)) return [];
-  return fs.readdirSync(GATES_DIR)
+  const dir = gatesDir();
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
     .filter((name) => name.endsWith(".json"))
     .sort()
     .map((name) => {
-      const full = path.join(GATES_DIR, name);
+      const full = path.join(dir, name);
       try {
         return { name, gate: JSON.parse(fs.readFileSync(full, "utf8")) };
       } catch {
@@ -46,7 +146,7 @@ function readiness(rows) {
 function artifactRows() {
   return ARTIFACTS.map((artifact) => ({
     artifact,
-    status: fs.existsSync(path.join(ROOT, artifact)) ? "present" : "missing",
+    status: fs.existsSync(path.join(root(), artifact)) ? "present" : "missing",
   }));
 }
 
@@ -62,6 +162,7 @@ function statusPayload() {
       blockers: Array.isArray(gate.blockers) ? gate.blockers.length : 0,
     })),
     artifacts: artifactRows(),
+    context: contextSignals(),
   };
 }
 
@@ -97,7 +198,21 @@ function main() {
     console.log(`${status} ${artifact}`);
   }
 
-  const auditStatusPath = path.join(ROOT, "docs", "audit", "status.json");
+  console.log("");
+  console.log("Context Signals");
+  console.log("===============");
+  console.log(`Questions: ${payload.context.questions.open} open / ${payload.context.questions.answered} answered / ${payload.context.questions.total} total`);
+  console.log(`Principal ruling requests: ${payload.context.principalRulingRequests.total}`);
+  console.log(`Resume notes: ${payload.context.resumes.total}`);
+  console.log(`Key decisions: ${payload.context.keyDecisions.total}`);
+  for (const question of payload.context.questions.latestOpen) {
+    console.log(`open QUESTION: ${question}`);
+  }
+  for (const request of payload.context.principalRulingRequests.latest) {
+    console.log(`pending PRINCIPAL-RULING-REQUEST: ${request}`);
+  }
+
+  const auditStatusPath = path.join(root(), "docs", "audit", "status.json");
   if (fs.existsSync(auditStatusPath)) {
     try {
       const audit = JSON.parse(fs.readFileSync(auditStatusPath, "utf8"));
@@ -118,4 +233,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { gates, readiness, statusPayload };
+module.exports = { contextSignals, gates, readiness, statusPayload };

@@ -65,6 +65,8 @@ describe("codex-team CLI", () => {
   it("status reports gates, artifacts, and audit state", () => {
     run("stage", ["requirements"]);
     run("audit-quick", ["src/backend"]);
+    run("ask-pm", ["Which tenants are in scope?"]);
+    run("principal-ruling", ["Should review conflicts be escalated?"]);
 
     const result = run("status");
 
@@ -78,6 +80,11 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /missing pipeline\/design-spec\.md/);
     assert.match(result.stdout, /Audit/);
     assert.match(result.stdout, /mode=quick scope=src\/backend status=scaffolded/);
+    assert.match(result.stdout, /Context Signals/);
+    assert.match(result.stdout, /Questions: 1 open \/ 0 answered \/ 1 total/);
+    assert.match(result.stdout, /Principal ruling requests: 1/);
+    assert.match(result.stdout, /open QUESTION: Which tenants are in scope\?/);
+    assert.match(result.stdout, /pending PRINCIPAL-RULING-REQUEST: Should review conflicts be escalated\?/);
   });
 
   it("status can emit JSON for automation", () => {
@@ -90,6 +97,7 @@ describe("codex-team CLI", () => {
     assert.equal(payload.readiness, "in-progress");
     assert.equal(payload.gates[0].name, "stage-01.json");
     assert.equal(payload.artifacts.find((row) => row.artifact === "pipeline/brief.md").status, "present");
+    assert.equal(payload.context.questions.open, 0);
   });
 
   it("next reports the next pipeline action", () => {

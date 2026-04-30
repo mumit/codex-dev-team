@@ -131,6 +131,10 @@ npm run lessons -- promote
 Set `CODEX_TEAM_TRACK=quick` (or another supported gate track) before stage or
 prompt commands to stamp that track into generated gates.
 
+`npm run status` includes gate readiness, artifact presence, audit state, and
+decision-flow signals from `pipeline/context.md`, including open PM questions,
+principal ruling requests, resume notes, and ADR/key-decision entries.
+
 ## Deployment Adapters
 
 Stage 8 reads `.codex/config.yml` and `.codex/adapters/<adapter>.md`. The
