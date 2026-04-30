@@ -48,6 +48,11 @@ instead of creating package metadata just for the framework.
 | `/pipeline-review` | `npm run pipeline:review` |
 | `/pipeline-context` | `npm run pipeline:context` |
 | `/retrospective` | `npm run retrospective` |
+| `/ask-pm` | `npm run ask-pm` |
+| Record PM question | `npm run ask-pm -- "<question>"` |
+| `/principal-ruling <question>` | `npm run principal-ruling -- "<question>"` |
+| `/adr <title>` | `npm run adr -- "<title>"` |
+| `/resume <stage-n>` | `npm run resume -- <stage-n> "<reason>"` |
 | Stage task prompt | `npm run prompt -- <stage> "<feature>"` |
 | `/stage <name>` | `npm run stage -- <name>` |
 | `/status` | `npm run status` |

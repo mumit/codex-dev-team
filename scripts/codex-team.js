@@ -211,6 +211,39 @@ function writeIfMissing(relativePath, content) {
   return false;
 }
 
+function ensurePipelineWorkspace() {
+  fs.mkdirSync(path.join(ROOT, "pipeline", "gates"), { recursive: true });
+  fs.mkdirSync(path.join(ROOT, "pipeline", "adr"), { recursive: true });
+  fs.mkdirSync(path.join(ROOT, "pipeline", "code-review"), { recursive: true });
+  writeIfMissing("pipeline/context.md", "# Project Context\n\n## Fix Log\n");
+  writeIfMissing("pipeline/lessons-learned.md", "# Lessons Learned\n\n---\n");
+}
+
+function appendContext(line) {
+  ensurePipelineWorkspace();
+  fs.appendFileSync(path.join(ROOT, "pipeline", "context.md"), `\n${line}\n`);
+}
+
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80) || "decision";
+}
+
+function stageNameFromInput(input) {
+  const raw = String(input || "").trim().toLowerCase();
+  const canonicalName = canonicalStageName(raw);
+  if (STAGES[canonicalName]) return canonicalName;
+
+  const stageNumber = raw.match(/^(?:stage-)?0?([1-9])(?:-.+)?$/);
+  if (!stageNumber) return null;
+
+  const padded = String(Number(stageNumber[1])).padStart(2, "0");
+  return orderedStageNames().find((name) => STAGES[name].stage.startsWith(`stage-${padded}`)) || null;
+}
+
 function currentTrack() {
   return process.env.CODEX_TEAM_TRACK || "full";
 }
@@ -495,12 +528,102 @@ function runRetrospective() {
   return 0;
 }
 
+function nextAdrNumber() {
+  ensurePipelineWorkspace();
+  const adrDir = path.join(ROOT, "pipeline", "adr");
+  const numbers = fs.readdirSync(adrDir)
+    .map((file) => file.match(/^(\d{4})-/))
+    .filter(Boolean)
+    .map((match) => Number(match[1]));
+  return String((numbers.length > 0 ? Math.max(...numbers) : 0) + 1).padStart(4, "0");
+}
+
+function createAdr(title) {
+  const normalizedTitle = title.trim();
+  if (!normalizedTitle) {
+    console.error("Usage: codex-team adr <title>");
+    return 1;
+  }
+
+  const number = nextAdrNumber();
+  const date = new Date().toISOString().slice(0, 10);
+  const file = `pipeline/adr/${number}-${slugify(normalizedTitle)}.md`;
+  const content = readTemplate("adr-template.md")
+    .replace("NNNN", number)
+    .replace("Title", normalizedTitle)
+    .replace("YYYY-MM-DD", date);
+  writeIfMissing(file, content);
+  appendContext(`${new Date().toISOString()} - ADR ${number}: ${normalizedTitle}`);
+  console.log(`created ${file}`);
+  console.log(`ADR ${number}: ${normalizedTitle}`);
+  return 0;
+}
+
+function askPm(question) {
+  ensurePipelineWorkspace();
+  const normalizedQuestion = question.trim();
+
+  if (normalizedQuestion) {
+    appendContext(`QUESTION: ${normalizedQuestion}`);
+    console.log("recorded QUESTION in pipeline/context.md");
+    console.log("Next: run npm run ask-pm with no question, then answer with PM-ANSWER lines.");
+    return 0;
+  }
+
+  console.log("PM Clarification Pass");
+  console.log("=====================");
+  console.log("Read all open QUESTION lines in pipeline/context.md.");
+  console.log("Answer each one with a PM-ANSWER line directly below it.");
+  console.log("Update pipeline/brief.md only if the answer changes scope.");
+  return 0;
+}
+
+function principalRuling(question) {
+  const normalizedQuestion = question.trim();
+  if (!normalizedQuestion) {
+    console.error("Usage: codex-team principal-ruling <question or conflict>");
+    return 1;
+  }
+
+  appendContext(`PRINCIPAL-RULING-REQUEST: ${normalizedQuestion}`);
+  console.log("recorded PRINCIPAL-RULING-REQUEST in pipeline/context.md");
+  console.log("Next: run npm run adr -- \"<ruling title>\" after the Principal makes the decision.");
+  return 0;
+}
+
+function resumePipeline(input, reason) {
+  if (!validateTrack()) return 1;
+  const stageName = stageNameFromInput(input);
+  if (!stageName) {
+    console.error(`Unknown stage: ${input || ""}`);
+    console.error(`Known stages: ${stageNames().join(", ")} or stage numbers 1-9`);
+    return 1;
+  }
+
+  const index = orderedStageNames().indexOf(stageName);
+  const blockers = [];
+  for (const priorName of orderedStageNames().slice(0, index)) {
+    const config = STAGES[priorName];
+    const prior = readGate(config.stage);
+    if (!prior.exists) blockers.push(`${config.stage} (${priorName}) is missing`);
+    else if (prior.gate.status !== "PASS") blockers.push(`${config.stage} (${priorName}) is ${prior.gate.status || "unknown"}`);
+  }
+
+  if (blockers.length > 0) {
+    console.error(`Cannot resume ${STAGES[stageName].stage} (${stageName}) until prior gates pass:`);
+    for (const blocker of blockers) console.error(`- ${blocker}`);
+    return 1;
+  }
+
+  appendContext(`${new Date().toISOString()} - RESUME: ${STAGES[stageName].stage} (${stageName})${reason ? ` - ${reason}` : ""}`);
+  console.log(`Resume: ${STAGES[stageName].stage} (${stageName})`);
+  if (reason) console.log(`Reason: ${reason}`);
+  console.log("");
+  return promptForStage(stageName, "");
+}
+
 function newPipeline(name) {
-  fs.mkdirSync(path.join(ROOT, "pipeline", "gates"), { recursive: true });
-  fs.mkdirSync(path.join(ROOT, "pipeline", "adr"), { recursive: true });
-  fs.mkdirSync(path.join(ROOT, "pipeline", "code-review"), { recursive: true });
-  writeIfMissing("pipeline/context.md", "# Project Context\n\n## Fix Log\n");
-  writeIfMissing("pipeline/lessons-learned.md", "# Lessons Learned\n\n---\n");
+  ensurePipelineWorkspace();
   if (name) {
     fs.appendFileSync(
       path.join(ROOT, "pipeline", "context.md"),
@@ -602,6 +725,7 @@ function doctor() {
 
   for (const template of [
     "brief-template.md",
+    "adr-template.md",
     "design-spec-template.md",
     "clarification-template.md",
     "build-template.md",
@@ -653,6 +777,10 @@ function usage(exitCode = 1) {
     "  pipeline-review",
     "  pipeline-context",
     "  retrospective",
+    "  ask-pm [question]",
+    "  principal-ruling <question>",
+    "  adr <title>",
+    "  resume <stage|stage-number> [reason]",
     "  role <name>",
     "  prompt <stage> [feature]",
     "  stage <requirements|design|clarification|build|pre-review|peer-review|qa|deploy|retrospective>",
@@ -688,6 +816,10 @@ function main() {
   if (command === "pipeline-review") return runPipelineReview();
   if (command === "pipeline-context") return printContext();
   if (command === "retrospective") return runRetrospective();
+  if (command === "ask-pm") return askPm(process.argv.slice(3).join(" "));
+  if (command === "principal-ruling") return principalRuling(process.argv.slice(3).join(" "));
+  if (command === "adr") return createAdr(process.argv.slice(3).join(" "));
+  if (command === "resume") return resumePipeline(process.argv[3], process.argv.slice(4).join(" "));
   if (command === "role") return printRole(process.argv[3]);
   if (command === "prompt") return promptForStage(process.argv[3], process.argv.slice(4).join(" "));
   if (command === "stage") return scaffoldStage(process.argv[3]);
@@ -705,5 +837,6 @@ module.exports = {
   canonicalStageName,
   draftGateObject,
   orderedStageNames,
+  stageNameFromInput,
   stageNames,
 };

@@ -321,6 +321,58 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /LESSON:/);
   });
 
+  it("adr creates a numbered decision record and context entry", () => {
+    const result = run("adr", ["Use webhooks for external sync"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /created pipeline\/adr\/0001-use-webhooks-for-external-sync\.md/);
+    const adr = fs.readFileSync(path.join(target, "pipeline", "adr", "0001-use-webhooks-for-external-sync.md"), "utf8");
+    assert.match(adr, /# ADR 0001 - Use webhooks for external sync/);
+    assert.match(adr, /\*\*Status\*\*: Proposed/);
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /ADR 0001: Use webhooks/);
+  });
+
+  it("ask-pm records questions and emits clarification instructions", () => {
+    const recorded = run("ask-pm", ["Which tenants are in scope?"]);
+
+    assert.equal(recorded.status, 0);
+    assert.match(recorded.stdout, /recorded QUESTION/);
+    assert.match(fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"), /QUESTION: Which tenants are in scope\?/);
+
+    const prompt = run("ask-pm");
+    assert.equal(prompt.status, 0);
+    assert.match(prompt.stdout, /PM Clarification Pass/);
+    assert.match(prompt.stdout, /PM-ANSWER/);
+  });
+
+  it("principal-ruling records ruling requests", () => {
+    const result = run("principal-ruling", ["Should review conflicts be escalated?"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /recorded PRINCIPAL-RULING-REQUEST/);
+    assert.match(
+      fs.readFileSync(path.join(target, "pipeline", "context.md"), "utf8"),
+      /PRINCIPAL-RULING-REQUEST: Should review conflicts be escalated\?/,
+    );
+  });
+
+  it("resume emits a stage prompt after prior gates pass", () => {
+    const result = run("resume", ["1", "new feature approved"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Resume: stage-01 \(requirements\)/);
+    assert.match(result.stdout, /Reason: new feature approved/);
+    assert.match(result.stdout, /Stage: stage-01 \(requirements\)/);
+  });
+
+  it("resume blocks when prior gates are missing or not passing", () => {
+    const result = run("resume", ["2"]);
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Cannot resume stage-02 \(design\)/);
+    assert.match(result.stderr, /stage-01 \(requirements\) is missing/);
+  });
+
   it("prompt command emits a self-contained stage prompt", () => {
     const result = run("prompt", ["requirements", "Add search"]);
 

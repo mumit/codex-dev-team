@@ -107,6 +107,11 @@ npm run design -- "Add authentication"
 npm run pipeline:review
 npm run pipeline:context
 npm run retrospective
+npm run ask-pm -- "Which tenants are in scope?"
+npm run ask-pm
+npm run principal-ruling -- "Should this use webhooks or polling?"
+npm run adr -- "Use webhooks for external sync"
+npm run resume -- 4 "design approved"
 npm run role -- pm
 npm run prompt -- requirements "Add authentication"
 npm run stage -- requirements
