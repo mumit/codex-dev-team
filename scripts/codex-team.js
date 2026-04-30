@@ -334,10 +334,55 @@ function printList(title, items) {
   for (const item of items) console.log(`- ${item}`);
 }
 
+function trackInstructionLines(track, stageName) {
+  const common = {
+    quick: [
+      "Keep the change inside one owning area; escalate to full if scope grows.",
+      "Use scoped review gates with required_approvals=1.",
+    ],
+    nano: [
+      "Use only for trivial changes that cannot affect runtime behavior.",
+      "Skip requirements, design, clarification, pre-review, deploy, and retrospective.",
+    ],
+    "config-only": [
+      "Edit only config paths confirmed in pipeline/context.md.",
+      "PASS QA gates must include regression_check=PASS.",
+    ],
+    "dep-update": [
+      "Record changelog, license, and vulnerability scan notes in the platform PR.",
+      "Use the deps scoped review gate with required_approvals=1.",
+    ],
+    hotfix: [
+      "Read pipeline/hotfix-spec.md instead of a design spec.",
+      "Do not skip conditional security review when the heuristic fires.",
+    ],
+  };
+
+  const stageSpecific = {
+    "quick:build": ["Keep the diff small and write pipeline/pr-<area>.md with verification mapped to the mini brief."],
+    "quick:peer-review": ["Review is cross-area and scoped; one approval closes the gate."],
+    "nano:build": ["Skip plan ceremony; write a one-line PR note and record regression evidence if auto-folding QA."],
+    "nano:qa": ["Run only affected checks; PASS gates must include regression_check=PASS."],
+    "config-only:build": ["Platform edits only listed config files; any off-list change escalates."],
+    "config-only:pre-review": ["Run lint and config validation such as docker compose config when applicable."],
+    "dep-update:build": ["Do not make substantive code migrations in this track; escalate if the upgrade requires refactoring."],
+    "dep-update:peer-review": ["Focus review on supply-chain scope, lockfile churn, package source, and changelog risk."],
+    "hotfix:build": ["Constrain every edit to pipeline/hotfix-spec.md blast-radius limits."],
+    "hotfix:pre-review": ["Record stage_4_5a_skipped=true on PASS and still run the security trigger."],
+    "hotfix:deploy": ["PM sign-off is required before deploy regardless of urgency."],
+  };
+
+  return [
+    ...(common[track] || []),
+    ...(stageSpecific[`${track}:${stageName}`] || []),
+  ];
+}
+
 function promptForStage(name, feature) {
   if (!validateTrack()) return 1;
   const canonicalName = canonicalStageName(name);
-  const config = STAGES[canonicalName];
+  const track = activeTrack();
+  const config = stageConfigForTrackStep(track, canonicalName);
   if (!config) {
     console.error(`Unknown stage: ${name}`);
     console.error(`Known stages: ${stageNames().join(", ")}`);
@@ -346,10 +391,18 @@ function promptForStage(name, feature) {
 
   console.log(`Role: ${config.role}`);
   console.log(`Stage: ${config.stage} (${canonicalName})`);
-  console.log(`Track: ${currentTrack()}`);
+  console.log(`Track: ${track}`);
   if (feature) console.log(`Feature: ${feature}`);
   console.log(`Objective: ${config.objective}`);
+  if (!orderedStageNamesForTrack(track).includes(canonicalName)) {
+    console.log(`Track warning: ${canonicalName} is skipped by ${track} track.`);
+  }
   console.log("");
+  const trackInstructions = trackInstructionLines(track, canonicalName);
+  if (trackInstructions.length > 0) {
+    printList("Track instructions", trackInstructions);
+    console.log("");
+  }
   printList("Role briefs", roleNamesForConfig(config).map((role) => `.codex/prompts/roles/${role}.md`));
   console.log("");
   printList("Read first", config.readFirst);

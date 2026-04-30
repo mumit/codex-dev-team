@@ -650,6 +650,38 @@ describe("codex-team CLI", () => {
     assert.match(result.stdout, /npm run validate/);
   });
 
+  it("prompt command includes active track instructions", () => {
+    run("hotfix", ["Fix production checkout timeout"]);
+
+    const result = run("prompt", ["build"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: hotfix/);
+    assert.match(result.stdout, /Track instructions/);
+    assert.match(result.stdout, /Read pipeline\/hotfix-spec\.md instead of a design spec/);
+    assert.match(result.stdout, /blast-radius/);
+  });
+
+  it("prompt command warns for stages skipped by the active track", () => {
+    run("nano", ["Fix README typo"]);
+
+    const result = run("prompt", ["requirements"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Track: nano/);
+    assert.match(result.stdout, /Track warning: requirements is skipped by nano track/);
+  });
+
+  it("prompt command uses track-specific stage gate names", () => {
+    run("dep-update", ["Upgrade lodash to 4.17.21"]);
+
+    const result = run("prompt", ["peer-review"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Stage: stage-06-deps \(peer-review\)/);
+    assert.match(result.stdout, /Use the deps scoped review gate/);
+  });
+
   it("prompt command rejects unknown stages", () => {
     const result = run("prompt", ["mystery"]);
 
