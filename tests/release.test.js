@@ -15,17 +15,26 @@ describe("release helper", () => {
     target = fs.mkdtempSync(path.join(os.tmpdir(), "codex-release-"));
     fs.mkdirSync(path.join(target, ".codex"), { recursive: true });
     fs.mkdirSync(path.join(target, ".codex", "rules"), { recursive: true });
+    const pipelineRuleContent = [
+      "# pipeline",
+      "## Safety stoplist",
+      "- Authentication, authorization, or session handling",
+      "- Cryptography, key management, or secrets rotation",
+      "- PII, payments, or regulated-data handling",
+      "## Tracks",
+      "| full |",
+    ].join("\n") + "\n";
     for (const rule of [
       "coding-principles",
       "compaction",
       "escalation",
       "gates",
       "orchestrator",
-      "pipeline",
       "retrospective",
     ]) {
       fs.writeFileSync(path.join(target, ".codex", "rules", `${rule}.md`), `# ${rule}\n`);
     }
+    fs.writeFileSync(path.join(target, ".codex", "rules", "pipeline.md"), pipelineRuleContent);
     for (const skill of [
       "api-conventions",
       "code-conventions",
@@ -37,6 +46,20 @@ describe("release helper", () => {
       fs.mkdirSync(path.join(target, ".codex", "skills", skill), { recursive: true });
       fs.writeFileSync(path.join(target, ".codex", "skills", skill, "SKILL.md"), `---\nname: ${skill}\ndescription: test\n---\n`);
     }
+    // Role prompts — must be >= 60 lines each
+    const rolePromptContent = ["# Role Brief\n\n## Read First\n\n## Writes\n\n## Handoff\n\n"]
+      .concat(Array(62).fill("Behavioral content line.\n")).join("");
+    fs.mkdirSync(path.join(target, ".codex", "prompts", "roles"), { recursive: true });
+    for (const role of ["pm", "principal", "backend", "frontend", "platform", "qa", "security", "reviewer"]) {
+      fs.writeFileSync(path.join(target, ".codex", "prompts", "roles", `${role}.md`), rolePromptContent);
+    }
+
+    // Audit phases reference — must be >= 100 lines
+    fs.mkdirSync(path.join(target, ".codex", "references"), { recursive: true });
+    const auditPhasesContent = ["# Audit Phase Definitions\n"]
+      .concat(Array(105).fill("Phase content line.\n")).join("");
+    fs.writeFileSync(path.join(target, ".codex", "references", "audit-phases.md"), auditPhasesContent);
+
     fs.mkdirSync(path.join(target, "examples", "tiny-app"), { recursive: true });
     fs.mkdirSync(path.join(target, ".github", "workflows"), { recursive: true });
     fs.mkdirSync(path.join(target, "docs", "parity"), { recursive: true });
@@ -44,7 +67,23 @@ describe("release helper", () => {
     fs.writeFileSync(path.join(target, "VERSION"), "1.2.3\n");
     fs.writeFileSync(path.join(target, "README.md"), "# Test\n");
     fs.writeFileSync(path.join(target, "AGENTS.md"), "# Agents\n");
-    fs.writeFileSync(path.join(target, ".codex", "config.yml"), "version: \"1.2.3\"\n");
+    fs.writeFileSync(path.join(target, ".codex", "config.yml"), [
+      "framework:",
+      "  version: \"1.2.3\"",
+      "execution:",
+      "  default_profile: local",
+      "pipeline:",
+      "  default_track: full",
+      "security:",
+      "  trigger_paths: []",
+      "deploy:",
+      "  adapter: docker-compose",
+      "budget:",
+      "  enabled: false",
+      "checkpoints:",
+      "  a:",
+      "    auto_pass_when: null",
+    ].join("\n") + "\n");
     fs.writeFileSync(path.join(target, ".github", "workflows", "test.yml"), "name: test\n");
     fs.writeFileSync(path.join(target, "scripts", "codex-team.js"), "");
     fs.writeFileSync(path.join(target, "scripts", "gate-validator.js"), "");

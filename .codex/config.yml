@@ -30,3 +30,30 @@ security:
 
 deploy:
   adapter: docker-compose
+
+# Budget gate (opt-in). When enabled, the orchestrator tracks token usage
+# and wall-clock time per pipeline run and writes pipeline/budget.md.
+# After each stage boundary it compares running totals to the maxima.
+# on_exceed: escalate writes a budget-breach ESCALATE gate and halts.
+# on_exceed: warn logs a warning but continues (calibration runs).
+budget:
+  enabled: false
+  tokens_max: 500000
+  wall_clock_max_minutes: 90
+  on_exceed: escalate
+
+# Async-friendly checkpoints. By default the pipeline halts at
+# Checkpoints A (after requirements), B (after design), C (after QA)
+# waiting for human "proceed". Set auto_pass_when on any to pre-approve.
+# Supported conditions:
+#   null/absent: always wait (default)
+#   "no_warnings": auto-pass if stage gate has zero warnings
+#   "all_criteria_passed": auto-pass if QA had 100% pass (Checkpoint C only)
+# Never auto-pass a checkpoint for security-sensitive work.
+checkpoints:
+  a:
+    auto_pass_when: null
+  b:
+    auto_pass_when: null
+  c:
+    auto_pass_when: null

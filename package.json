@@ -49,6 +49,8 @@
     "role": "node scripts/codex-team.js role",
     "prompt": "node scripts/codex-team.js prompt",
     "stage": "node scripts/codex-team.js stage",
-    "lessons": "node scripts/codex-team.js lessons"
+    "lessons": "node scripts/codex-team.js lessons",
+    "budget": "node scripts/codex-team.js budget",
+    "visualize": "node scripts/codex-team.js visualize"
   }
 }

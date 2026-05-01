@@ -582,6 +582,98 @@ function signoffAutoFoldEligibility(track) {
   return { ok: false, reason: "stage-07 must meet acceptance criteria with 1:1 mapping" };
 }
 
+// ---------------------------------------------------------------------------
+// Checkpoint auto-pass (opt-in via .codex/config.yml checkpoints.<a|b|c>)
+// ---------------------------------------------------------------------------
+
+// Map from stage name to checkpoint label
+const CHECKPOINT_STAGE_MAP = {
+  requirements: "a",
+  design: "b",
+  qa: "c",
+};
+
+function readCheckpointConfig() {
+  const configPath = path.join(ROOT, ".codex", "config.yml");
+  if (!fs.existsSync(configPath)) return {};
+
+  const text = fs.readFileSync(configPath, "utf8");
+  const result = {};
+
+  for (const label of ["a", "b", "c"]) {
+    // Look for the block under checkpoints: that contains the label key
+    const re = new RegExp(`${label}:\\s*\\n\\s+auto_pass_when:\\s*(\\S+)`);
+    const m = re.exec(text);
+    if (m) {
+      const val = m[1].trim();
+      result[label] = val === "null" ? null : val;
+    } else {
+      result[label] = null;
+    }
+  }
+
+  return result;
+}
+
+function contextHasStoplistTrigger() {
+  const contextPath = path.join(ROOT, "pipeline", "context.md");
+  if (!fs.existsSync(contextPath)) return false;
+  const text = fs.readFileSync(contextPath, "utf8").toLowerCase();
+  const triggers = [
+    "auth", "authorization", "session handling",
+    "cryptography", "key management", "secrets rotation",
+    "pii", "payments", "regulated-data",
+    "schema migration", "destructive data",
+    "feature-flag introduction",
+    "new external dependenc",
+  ];
+  return triggers.some((t) => text.includes(t));
+}
+
+/**
+ * After a stage gate passes, check whether the corresponding checkpoint
+ * can be auto-passed. If so, append a record to pipeline/context.md.
+ *
+ * Returns: "auto-passed" | "waiting" | "not-a-checkpoint" | "suppressed"
+ */
+function applyCheckpointAutoPass(stageNameJustPassed) {
+  const checkpointLabel = CHECKPOINT_STAGE_MAP[stageNameJustPassed];
+  if (!checkpointLabel) return "not-a-checkpoint";
+
+  const config = readCheckpointConfig();
+  const condition = config[checkpointLabel];
+  if (!condition) return "waiting";
+
+  // Safety: never auto-pass stoplist-sensitive runs
+  if (contextHasStoplistTrigger()) return "suppressed";
+
+  const gate = readGate(STAGES[stageNameJustPassed] ? STAGES[stageNameJustPassed].stage : stageNameJustPassed);
+
+  if (condition === "no_warnings") {
+    if (!gate.exists) return "waiting";
+    const warnings = gate.gate.warnings;
+    if (Array.isArray(warnings) && warnings.length === 0) {
+      appendContext(`${new Date().toISOString()} — CHECKPOINT-AUTO-PASS: ${checkpointLabel} (no_warnings)`);
+      return "auto-passed";
+    }
+    return "waiting";
+  }
+
+  if (condition === "all_criteria_passed" && checkpointLabel === "c") {
+    if (!gate.exists) return "waiting";
+    const g = gate.gate;
+    if (g.all_acceptance_criteria_met === true && g.criterion_to_test_mapping_is_one_to_one === true) {
+      appendContext(`${new Date().toISOString()} — CHECKPOINT-AUTO-PASS: c (all_criteria_passed)`);
+      return "auto-passed";
+    }
+    return "waiting";
+  }
+
+  return "waiting";
+}
+
+// ---------------------------------------------------------------------------
+
 function nextPayload() {
   const track = activeTrack();
   for (const name of orderedStageNamesForTrack(track)) {
@@ -1122,6 +1214,8 @@ function doctor() {
     ["scripts/lessons.js", exists("scripts/lessons.js")],
     ["scripts/lint-syntax.js", exists("scripts/lint-syntax.js")],
     ["scripts/pr-pack.js", exists("scripts/pr-pack.js")],
+    ["scripts/budget.js", exists("scripts/budget.js")],
+    ["scripts/visualize.js", exists("scripts/visualize.js")],
     ["scripts/parity-check.js", exists("scripts/parity-check.js")],
     ["scripts/release.js", exists("scripts/release.js")],
     ["scripts/roadmap.js", exists("scripts/roadmap.js")],
@@ -1190,6 +1284,8 @@ function usage(exitCode = 1) {
     "  status | next | roadmap | validate | doctor | reset",
     "  review | security | runbook | lessons | summary | autofold",
     "  audit | audit-quick | health-check",
+    "  budget <init|update|check>",
+    "  visualize",
     "",
     "Pipeline:",
     "  pipeline <feature>",
@@ -1219,6 +1315,8 @@ function usage(exitCode = 1) {
 function main() {
   const command = process.argv[2];
   if (command === "help" || command === "--help" || command === "-h") return usage(0);
+  if (command === "budget") return runNodeScript("budget.js", process.argv.slice(3));
+  if (command === "visualize") return runNodeScript("visualize.js", process.argv.slice(3));
   if (command === "status") return runNodeScript("status.js", process.argv.slice(3));
   if (command === "next") return printNext(process.argv.slice(3));
   if (command === "summary") return runNodeScript("summary.js");
@@ -1275,4 +1373,7 @@ module.exports = {
   activeTrack,
   stageNameFromInput,
   stageNames,
+  applyCheckpointAutoPass,
+  readCheckpointConfig,
+  contextHasStoplistTrigger,
 };
