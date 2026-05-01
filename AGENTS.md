@@ -69,6 +69,10 @@ instead of creating package metadata just for the framework.
 | `/audit-quick [scope]` | `npm run audit:quick -- "<scope>"` |
 | `/health-check` | `npm run health-check` |
 | Claude parity checklist | `npm run parity:check` |
+| Init budget tracking | `npm run budget -- init` |
+| Update budget after stage | `npm run budget -- update <stage>` |
+| Check budget totals | `npm run budget -- check` |
+| Visualize pipeline state | `npm run visualize` |
 
 ## Local vs Cloud
 

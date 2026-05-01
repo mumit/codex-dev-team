@@ -4,7 +4,7 @@ All notable changes to the `codex-dev-team` framework are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 the project follows [Semantic Versioning](https://semver.org/).
 
-Per-release detail lives in [`docs/releases/`](docs/releases/). This file
+Per-release detail lives in [`docs/release-notes/`](docs/release-notes/). This file
 is the index and the rolling `[Unreleased]` pointer — it stays thin so
 `git log` diffs between tags are readable.
 
@@ -122,8 +122,8 @@ Codex-native conventions.
 
 ## How to add a new release entry
 
-1. Create `docs/releases/vX.Y.Z.md` following the shape in
-   [`docs/releases/README.md`](docs/releases/README.md).
+1. Create `docs/release-notes/vX.Y.Z.md` following the shape of
+   [`docs/release-notes/v1.0.0.md`](docs/release-notes/v1.0.0.md).
 2. Add a row to the release map table above (reverse chronological).
 3. Move the relevant `[Unreleased]` entries into the release file,
    leaving `[Unreleased]` empty or listing only changes not yet released.

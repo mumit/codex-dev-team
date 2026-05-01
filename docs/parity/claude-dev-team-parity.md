@@ -1,9 +1,9 @@
 # Claude Dev Team Parity Checklist
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
 
 This checklist tracks whether `codex-dev-team` is on par with the local
-`claude-dev-team` framework. Release notes remain deferred until v1.0.
+`claude-dev-team` framework.
 
 ## Summary
 
@@ -77,6 +77,13 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 - Deployment adapters are documented and configured locally.
 - Track-aware `next`, `prompt`, and `autofold` helpers reduce manual orchestration.
 - Gate schemas and contract tests guard framework drift.
+- `scripts/budget.js` (`npm run budget`) — opt-in token and wall-clock tracking
+  per pipeline run; escalates or warns when configured maxima are exceeded.
+- `scripts/visualize.js` (`npm run visualize`) — Mermaid stateDiagram-v2
+  generator colors each stage by gate status; output is `pipeline/diagram.md`.
+- Async checkpoint auto-pass logic — `checkpoints.a/b/c` in `.codex/config.yml`
+  accept `no_warnings` or `all_criteria_passed` conditions so unattended runs can
+  advance without a human `proceed` when the precondition holds.
 
 ## Stage Numbering Divergence
 
@@ -108,5 +115,11 @@ eliminates one extra JSON gate file, not the security check itself.
 
 ## v1.0 Blockers
 
-- None. `npm run parity:check` now fails if any command row, required rule,
-  required skill, partial area, or v1.0 gap is present.
+- None. `npm run parity:check` fails if any command row, required rule,
+  required skill, partial area, or known gap is present.
+
+## Parity Status
+
+`v1.0.0` was the initial parity release. `v1.1.0` deepened structural coverage.
+`v1.2.0` (unreleased) adds shared runtime features (budget, visualize,
+checkpoint auto-pass) that go beyond what `claude-dev-team` offers.

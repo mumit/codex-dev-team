@@ -10,8 +10,8 @@ pipeline safely.
 3. Open `ESCALATE` gates and their `decision_needed` text.
 4. Open `QUESTION:` and `CONCERN:` entries in `pipeline/context.md`.
 5. Stage 4 build areas that are complete.
-6. Stage 5 review files that have been written.
-7. Stage 5 review round count per area, including changes-requested cycles.
+6. Stage 6 review files that have been written.
+7. Stage 6 review round count per area, including changes-requested cycles.
 8. Retry count and owning role for any stage currently retrying.
 9. Stage 9a agents that have contributed.
 10. Whether Stage 9b synthesis completed and which lessons were promoted or
