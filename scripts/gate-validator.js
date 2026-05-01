@@ -56,7 +56,7 @@ function latestGateFile() {
       const full = path.join(GATES_DIR, name);
       return { name, full, mtime: fs.statSync(full).mtimeMs };
     })
-    .sort((a, b) => b.mtime - a.mtime);
+    .sort((a, b) => b.mtime - a.mtime || b.name.localeCompare(a.name));
 
   return files[0] || null;
 }
