@@ -3,6 +3,43 @@
 The Codex Dev Team pipeline is a deterministic delivery workflow. It can run
 locally, in a Codex app worktree, or as delegated cloud tasks.
 
+## Stage 0 - Routing and Budget
+
+Before Stage 1, the orchestrator decides which track to run and (optionally)
+initialises budget tracking.
+
+### Safety stoplist
+
+The full track is mandatory for any change that touches:
+- Authentication, authorization, or session handling
+- Cryptography, key management, or secrets rotation
+- PII, payments, or regulated-data handling
+- Schema migrations or destructive data changes
+- Feature-flag introduction (toggling existing flags is fine in config-only)
+- New external dependencies (upgrades are fine in dep-update)
+
+The lighter tracks (quick, nano, config-only, dep-update) must not be used
+to bypass this list. When uncertain, default to full.
+
+### Budget gate (opt-in)
+
+If `.codex/config.yml` has `budget.enabled: true`, the orchestrator writes
+`pipeline/budget.md` at run start with zero counters and updates it at every
+stage boundary. On exceed:
+- `on_exceed: escalate` writes `pipeline/gates/stage-budget.json` with
+  `status: ESCALATE` and halts the pipeline.
+- `on_exceed: warn` logs the breach and continues.
+
+Token counts are best-effort.
+
+### Async-friendly checkpoints
+
+By default the pipeline halts at Checkpoints A (after requirements), B
+(after design), C (after QA). When `.codex/config.yml` sets
+`checkpoints.<a|b|c>.auto_pass_when`, the orchestrator auto-passes that
+checkpoint when the named condition holds. Never auto-pass a security-
+sensitive run — the stoplist above remains the hard guard.
+
 ## Tracks
 
 | Track | Use for | Review |

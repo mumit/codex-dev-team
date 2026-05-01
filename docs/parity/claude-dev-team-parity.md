@@ -10,7 +10,7 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 | Area | Status | Notes |
 |---|---|---|
 | Commands | On par | Claude slash commands have Codex npm/CLI equivalents. |
-| Pipeline tracks | On par | full, quick, nano, config-only, dep-update, and hotfix are represented. |
+| Pipeline tracks | Restructured (see Stage Numbering Divergence) | full, quick, nano, config-only, dep-update, and hotfix are represented. |
 | Gates | On par | JSON gates, schemas, track contracts, validation, and auto-fold helpers exist. |
 | Roles | On par | PM, Principal, Backend, Frontend, Platform, QA, Reviewer, and Security prompts exist. |
 | Deployment adapters | Better | Codex has explicit adapter docs for Docker Compose, Kubernetes, Terraform, and custom scripts. |
@@ -77,6 +77,34 @@ This checklist tracks whether `codex-dev-team` is on par with the local
 - Deployment adapters are documented and configured locally.
 - Track-aware `next`, `prompt`, and `autofold` helpers reduce manual orchestration.
 - Gate schemas and contract tests guard framework drift.
+
+## Stage Numbering Divergence
+
+Codex collapsed claude's two pre-review gates (Stage 4.5a and 4.5b) into a
+single codex Stage 5 pre-review step. This shifts all later stage numbers by
+one relative to claude's numbering.
+
+| claude stage | codex stage |
+|---|---|
+| 1 Requirements | 1 Requirements |
+| 2 Design | 2 Design |
+| 3 Clarification | 3 Clarification |
+| 4 Build | 4 Build |
+| 4.5a Pre-review | 5 Pre-review (lint/types/SCA) |
+| 4.5b Security review (conditional) | 5 Pre-review records `security_review_required` |
+| 5 Peer review | 6 Peer review |
+| 6 Tests | 7 QA |
+| 7 PM sign-off | 8 Sign-off (folded with deploy) |
+| 8 Deploy | 8 Deploy |
+| 9 Retrospective | 9 Retrospective |
+
+Collapsing 4.5a/b reduces gate count by 1 in the common case (when no security
+review is triggered). Security is still fully gated: the pre-review step
+records `security_review_required: true` when the `security:check` heuristic
+matches, and the pipeline halts for a security review before advancing to peer
+review. Projects that always require security review can set
+`security.always_required: true` in `.codex/config.yml`; the collapsing only
+eliminates one extra JSON gate file, not the security check itself.
 
 ## v1.0 Blockers
 

@@ -8,6 +8,12 @@ description: "Audit a codebase and produce architecture, health, security, perfo
 Use this when the user asks to analyze a codebase, generate a roadmap, or run
 a health check.
 
+## Phase Definitions
+
+The authoritative phase definitions (inputs, outputs, checkpoints, resume
+semantics) live in `.codex/references/audit-phases.md`. Read that file at the
+start of every audit run. The summary below is for orientation only.
+
 ## Phases
 
 1. Project context and architecture map
