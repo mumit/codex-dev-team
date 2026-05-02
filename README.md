@@ -73,10 +73,18 @@ examples/
 
 ## Status
 
-`v1.0.0` is at feature parity with the local `claude-dev-team` framework and
-adds Codex-native CLI automation, JSON status/roadmap outputs, deployment
-adapters, strict parity checks, and dogfood install coverage. It remains
-local-only by design until you decide to publish a remote.
+`v1.0.0` shipped at feature parity with the local `claude-dev-team` framework
+and added Codex-native CLI automation, JSON status/roadmap outputs, deployment
+adapters, strict parity checks, and dogfood install coverage.
+
+`v1.1.0` deepened that parity: role prompts fleshed out, audit-phases reference
+added, budget/checkpoint config blocks added to `.codex/config.yml`, approval
+locking hardened, and parity-check coverage expanded.
+
+`v1.2.0` (unreleased, on branch `codex/elevate-with-claude-depth`) adds prose
+depth to all rule files, `scripts/budget.js` and `scripts/visualize.js`, async
+checkpoint auto-pass logic, `EXAMPLE.md`, `CHANGELOG.md`, and `CONTRIBUTING.md`.
+The framework remains local-only by design until you decide to publish a remote.
 
 ## CLI
 
@@ -132,6 +140,10 @@ npm run review:derive
 npm run security:check -- src/backend/auth/session.js
 npm run runbook:check
 npm run autofold
+npm run budget -- init
+npm run budget -- update <stage>
+npm run budget -- check
+npm run visualize
 npm run lessons -- show
 npm run lessons -- promote
 ```

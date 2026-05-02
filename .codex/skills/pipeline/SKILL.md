@@ -132,6 +132,19 @@ If the retrospective contains durable learning, write lines beginning with
 npm run lessons -- promote
 ```
 
+To visualize the final pipeline state:
+
+```bash
+npm run visualize
+```
+
+If budget tracking is enabled (`budget.enabled: true` in `.codex/config.yml`),
+check running totals at any time with:
+
+```bash
+npm run budget -- check
+```
+
 ## Stage Gates
 
 High-value stages have schema-backed required fields:
